@@ -1175,7 +1175,7 @@ jobs:
 
           SCRIPT_NAME=$(basename "$SCRIPT" .sh)
 
-          MESSAGE="Add ${SCRIPT_NAME#*_} script"
+          MESSAGE="Adding ${SCRIPT_NAME#*_} script"
           MESSAGE="${MESSAGE//_/ }"
 
           git commit -m "$MESSAGE"
