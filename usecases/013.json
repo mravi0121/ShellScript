@@ -1,0 +1,8 @@
+{
+  "id": 13,
+  "title": "Check Port Listening",
+  "description": "Check whether a TCP port is listening on the server.",
+  "filename": "013_check_port_listening.sh",
+  "category": "Networking",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Port Listening\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Port Listening\""
+}

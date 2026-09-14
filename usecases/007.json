@@ -1,0 +1,8 @@
+{
+  "id": 7,
+  "title": "Find Large Files",
+  "description": "Find files larger than a configurable size to help troubleshoot disk consumption.",
+  "filename": "007_find_large_files.sh",
+  "category": "Disk Management",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Find Large Files\n# TODO: implement the production-ready script for this use case.\n\necho \"Find Large Files\""
+}

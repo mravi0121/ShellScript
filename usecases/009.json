@@ -1,0 +1,8 @@
+{
+  "id": 9,
+  "title": "Count Files in Directory",
+  "description": "Count regular files in a directory recursively.",
+  "filename": "009_count_files.sh",
+  "category": "File Management",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Count Files in Directory\n# TODO: implement the production-ready script for this use case.\n\necho \"Count Files in Directory\""
+}

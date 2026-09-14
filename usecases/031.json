@@ -1,0 +1,8 @@
+{
+  "id": 31,
+  "title": "Check Process Running",
+  "description": "Check whether a process with a given name is running.",
+  "filename": "031_check_process_running.sh",
+  "category": "Process Monitoring",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Process Running\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Process Running\""
+}

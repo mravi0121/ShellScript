@@ -1,0 +1,8 @@
+{
+  "id": 36,
+  "title": "Change File Permissions",
+  "description": "Apply a safe configurable permission mode to a file.",
+  "filename": "036_change_file_permissions.sh",
+  "category": "Linux Administration",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Change File Permissions\n# TODO: implement the production-ready script for this use case.\n\necho \"Change File Permissions\""
+}

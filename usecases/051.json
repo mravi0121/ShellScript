@@ -1,0 +1,8 @@
+{
+  "id": 51,
+  "title": "Server Health Check",
+  "description": "Run a consolidated Linux health check covering CPU, memory, disk, load, uptime, and key services.",
+  "filename": "051_server_health_check.sh",
+  "category": "DevOps Monitoring",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Server Health Check\n# TODO: implement the production-ready script for this use case.\n\necho \"Server Health Check\""
+}

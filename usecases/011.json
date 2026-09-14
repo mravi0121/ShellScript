@@ -1,0 +1,8 @@
+{
+  "id": 11,
+  "title": "Check Service Status",
+  "description": "Check whether a systemd service is active.",
+  "filename": "011_check_service_status.sh",
+  "category": "Service Monitoring",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Service Status\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Service Status\""
+}

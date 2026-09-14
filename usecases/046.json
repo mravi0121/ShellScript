@@ -1,0 +1,8 @@
+{
+  "id": 46,
+  "title": "Git Repository Status",
+  "description": "Check whether a Git working tree contains uncommitted changes.",
+  "filename": "046_git_status_check.sh",
+  "category": "Git Automation",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Git Repository Status\n# TODO: implement the production-ready script for this use case.\n\necho \"Git Repository Status\""
+}

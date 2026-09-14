@@ -1,0 +1,8 @@
+{
+  "id": 3,
+  "title": "Check Memory Usage",
+  "description": "Check RAM utilization and report when memory usage is high.",
+  "filename": "003_check_memory_usage.sh",
+  "category": "Linux Monitoring",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Memory Usage\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Memory Usage\""
+}

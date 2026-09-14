@@ -1,0 +1,8 @@
+{
+  "id": 16,
+  "title": "Check DNS Resolution",
+  "description": "Verify that a hostname resolves correctly.",
+  "filename": "016_check_dns_resolution.sh",
+  "category": "Networking",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check DNS Resolution\n# TODO: implement the production-ready script for this use case.\n\necho \"Check DNS Resolution\""
+}

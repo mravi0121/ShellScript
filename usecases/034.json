@@ -1,0 +1,8 @@
+{
+  "id": 34,
+  "title": "Check Directory Exists",
+  "description": "Verify that a required directory exists and is accessible.",
+  "filename": "034_check_directory_exists.sh",
+  "category": "File Management",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Directory Exists\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Directory Exists\""
+}

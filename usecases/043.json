@@ -1,0 +1,8 @@
+{
+  "id": 43,
+  "title": "Check Environment Variable",
+  "description": "Verify that a required environment variable is configured.",
+  "filename": "043_check_environment_variable.sh",
+  "category": "Automation",
+  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Environment Variable\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Environment Variable\""
+}
