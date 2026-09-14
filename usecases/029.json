@@ -1,8 +1,0 @@
-{
-  "id": 29,
-  "title": "Find High CPU Processes",
-  "description": "Display processes consuming the most CPU.",
-  "filename": "029_find_high_cpu_processes.sh",
-  "category": "Process Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nLIMIT=\"${LIMIT:-10}\"\n\nps -eo pid,user,comm,%cpu,%mem --sort=-%cpu | head -n \"$((LIMIT + 1))\"\n"
-}

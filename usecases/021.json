@@ -1,8 +1,0 @@
-{
-  "id": 21,
-  "title": "Search Errors in Logs",
-  "description": "Search application logs for common error patterns.",
-  "filename": "021_search_log_errors.sh",
-  "category": "Log Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nLOG_FILE=\"${1:-/var/log/syslog}\"\n\nif [[ ! -f \"$LOG_FILE\" ]]; then\n    echo \"ERROR: File not found: $LOG_FILE\" >&2\n    exit 1\nfi\n\ngrep -Ein 'error|failed|fatal|critical|exception' \"$LOG_FILE\" | tail -50 || true\n"
-}

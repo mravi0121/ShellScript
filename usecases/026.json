@@ -1,8 +1,0 @@
-{
-  "id": 26,
-  "title": "Create Daily Backup",
-  "description": "Create a timestamped daily backup suitable for cron or CI automation.",
-  "filename": "026_daily_backup.sh",
-  "category": "Backup",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nSOURCE=\"${SOURCE:-$HOME/data}\"\nBACKUP_DIR=\"${BACKUP_DIR:-$HOME/backups}\"\n\nmkdir -p \"$BACKUP_DIR\"\n\nDATE=$(date +%Y-%m-%d)\nARCHIVE=\"$BACKUP_DIR/backup-$DATE.tar.gz\"\n\ntar -czf \"$ARCHIVE\" -C \"$(dirname \"$SOURCE\")\" \"$(basename \"$SOURCE\")\"\n\necho \"Daily backup created: $ARCHIVE\"\n"
-}

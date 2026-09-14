@@ -1,8 +1,0 @@
-{
-  "id": 11,
-  "title": "Check Service Status",
-  "description": "Check whether a systemd service is active.",
-  "filename": "011_check_service_status.sh",
-  "category": "Service Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nSERVICE=\"${1:-sshd}\"\n\nif systemctl is-active --quiet \"$SERVICE\"; then\n    echo \"OK: $SERVICE is active.\"\nelse\n    echo \"CRITICAL: $SERVICE is not active.\" >&2\n    systemctl --no-pager --full status \"$SERVICE\" || true\n    exit 1\nfi\n"
-}

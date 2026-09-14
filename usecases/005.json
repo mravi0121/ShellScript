@@ -1,8 +1,0 @@
-{
-  "id": 5,
-  "title": "Check System Uptime",
-  "description": "Display system uptime and boot time.",
-  "filename": "005_check_uptime.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\nset -euo pipefail\n\necho \"Uptime:\"\nuptime -p\n\necho\necho \"Last Boot:\"\nuptime -s\n"
-}

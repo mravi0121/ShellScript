@@ -1,8 +1,0 @@
-{
-  "id": 15,
-  "title": "Check HTTP Endpoint",
-  "description": "Check an HTTP/HTTPS endpoint and report its response status.",
-  "filename": "015_check_http_endpoint.sh",
-  "category": "Web Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nURL=\"${1:-https://example.com}\"\n\nSTATUS=$(curl -L -sS -o /dev/null -w '%{http_code}' --max-time 15 \"$URL\")\n\necho \"HTTP status for $URL: $STATUS\"\n\nif [[ \"$STATUS\" =~ ^2|^3 ]]; then\n    echo \"OK: Endpoint is responding.\"\nelse\n    echo \"ERROR: Endpoint returned $STATUS.\" >&2\n    exit 1\nfi\n"
-}

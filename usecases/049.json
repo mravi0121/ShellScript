@@ -1,8 +1,0 @@
-{
-  "id": 49,
-  "title": "Docker Cleanup",
-  "description": "Identify and remove stopped Docker containers and unused resources with configurable safety.",
-  "filename": "049_docker_cleanup.sh",
-  "category": "Docker",
-  "script": "#!/bin/bash\nset -euo pipefail\n\necho \"Stopped containers:\"\ndocker ps -aq --filter status=exited || true\n\necho\necho \"Dangling images:\"\ndocker images -q --filter dangling=true || true\n\nif [[ \"${DRY_RUN:-true}\" == \"true\" ]]; then\n    echo\n    echo \"DRY_RUN=true: no Docker resources were removed.\"\n    exit 0\nfi\n\ndocker container prune -f\ndocker image prune -f\n\necho \"Docker cleanup completed.\"\n"
-}

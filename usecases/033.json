@@ -1,8 +1,0 @@
-{
-  "id": 33,
-  "title": "Check File Exists",
-  "description": "Verify that a required file exists and is readable.",
-  "filename": "033_check_file_exists.sh",
-  "category": "File Management",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nFILE=\"${1:-}\"\n\nif [[ -z \"$FILE\" ]]; then\n    echo \"Usage: $0 /path/to/file\" >&2\n    exit 1\nfi\n\nif [[ -f \"$FILE\" && -r \"$FILE\" ]]; then\n    echo \"OK: File exists and is readable: $FILE\"\nelse\n    echo \"ERROR: File is missing or not readable: $FILE\" >&2\n    exit 1\nfi\n"
-}

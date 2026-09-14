@@ -1,8 +1,0 @@
-{
-  "id": 46,
-  "title": "Git Repository Status",
-  "description": "Check whether a Git working tree contains uncommitted changes.",
-  "filename": "046_git_status_check.sh",
-  "category": "Git Automation",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nif ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then\n    echo \"ERROR: Not inside a Git repository.\" >&2\n    exit 1\nfi\n\nBRANCH=$(git branch --show-current)\necho \"Branch: $BRANCH\"\n\nif git diff --quiet && git diff --cached --quiet; then\n    echo \"Working tree is clean.\"\nelse\n    echo \"Working tree has changes:\"\n    git status --short\n    exit 1\nfi\n"
-}

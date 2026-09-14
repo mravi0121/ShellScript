@@ -1,8 +1,0 @@
-{
-  "id": 44,
-  "title": "Validate JSON File",
-  "description": "Validate JSON syntax using an available command-line parser.",
-  "filename": "044_validate_json.sh",
-  "category": "Automation",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nFILE=\"${1:-}\"\n\nif [[ -z \"$FILE\" || ! -f \"$FILE\" ]]; then\n    echo \"Usage: $0 file.json\" >&2\n    exit 1\nfi\n\npython3 - \"$FILE\" <<'PY'\nimport json\nimport sys\n\nwith open(sys.argv[1], encoding=\"utf-8\") as f:\n    json.load(f)\n\nprint(\"Valid JSON\")\nPY\n"
-}

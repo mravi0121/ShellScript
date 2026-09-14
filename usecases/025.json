@@ -1,8 +1,0 @@
-{
-  "id": 25,
-  "title": "Verify Backup",
-  "description": "Verify that a backup archive exists and is readable.",
-  "filename": "025_verify_backup.sh",
-  "category": "Backup",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nBACKUP=\"${1:-}\"\n\nif [[ -z \"$BACKUP\" || ! -f \"$BACKUP\" ]]; then\n    echo \"Usage: $0 /path/to/backup.tar.gz\" >&2\n    exit 1\nfi\n\ntar -tzf \"$BACKUP\" >/dev/null\n\necho \"Backup is readable and structurally valid: $BACKUP\"\n"
-}

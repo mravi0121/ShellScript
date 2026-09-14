@@ -1,8 +1,0 @@
-{
-  "id": 4,
-  "title": "Check Load Average",
-  "description": "Display Linux system load average for quick health checks.",
-  "filename": "004_check_load_average.sh",
-  "category": "Linux Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nread -r ONE FIVE FIFTEEN _ < /proc/loadavg\n\necho \"Load Average:\"\necho \"  1 minute : $ONE\"\necho \"  5 minutes: $FIVE\"\necho \" 15 minutes: $FIFTEEN\"\n"
-}

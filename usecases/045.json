@@ -1,8 +1,0 @@
-{
-  "id": 45,
-  "title": "Validate YAML File",
-  "description": "Validate YAML syntax using an available parser when installed.",
-  "filename": "045_validate_yaml.sh",
-  "category": "Automation",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nFILE=\"${1:-}\"\n\nif [[ -z \"$FILE\" || ! -f \"$FILE\" ]]; then\n    echo \"Usage: $0 file.yaml\" >&2\n    exit 1\nfi\n\npython3 - \"$FILE\" <<'PY'\nimport sys\n\ntry:\n    import yaml\nexcept ImportError:\n    print(\"ERROR: PyYAML is not installed.\", file=sys.stderr)\n    sys.exit(2)\n\nwith open(sys.argv[1], encoding=\"utf-8\") as f:\n    yaml.safe_load(f)\n\nprint(\"Valid YAML\")\nPY\n"
-}

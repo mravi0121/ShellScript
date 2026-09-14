@@ -1,8 +1,0 @@
-{
-  "id": 20,
-  "title": "Monitor Log File",
-  "description": "Monitor a log file for a configurable error pattern.",
-  "filename": "020_monitor_log_file.sh",
-  "category": "Log Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nLOG_FILE=\"${1:-/var/log/syslog}\"\nPATTERN=\"${PATTERN:-ERROR|CRITICAL|FATAL}\"\n\nif [[ ! -f \"$LOG_FILE\" ]]; then\n    echo \"ERROR: Log file not found: $LOG_FILE\" >&2\n    exit 1\nfi\n\necho \"Searching $LOG_FILE for: $PATTERN\"\n\nif grep -Ein \"$PATTERN\" \"$LOG_FILE\" | tail -20; then\n    echo \"Matching log entries found.\"\nelse\n    echo \"No matching entries found.\"\nfi\n"
-}

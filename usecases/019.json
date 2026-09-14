@@ -1,8 +1,0 @@
-{
-  "id": 19,
-  "title": "Check Failed SSH Logins",
-  "description": "Count recent failed SSH authentication attempts from system logs.",
-  "filename": "019_check_failed_ssh_logins.sh",
-  "category": "Security",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nSINCE=\"${SINCE:-24 hours ago}\"\n\nCOUNT=$(journalctl --since \"$SINCE\" --no-pager 2>/dev/null |\n    grep -Eic 'Failed password|authentication failure|Invalid user' || true)\n\necho \"Failed SSH authentication events since $SINCE: $COUNT\"\n"
-}

@@ -1,8 +1,0 @@
-{
-  "id": 17,
-  "title": "Check SSL Certificate Expiry",
-  "description": "Report the remaining validity period of an SSL certificate.",
-  "filename": "017_check_ssl_expiry.sh",
-  "category": "Security",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nHOST=\"${1:-example.com}\"\nPORT=\"${2:-443}\"\nWARNING_DAYS=\"${WARNING_DAYS:-30}\"\n\nEND_DATE=$(openssl s_client -connect \"${HOST}:${PORT}\" -servername \"$HOST\" </dev/null 2>/dev/null |\n    openssl x509 -noout -enddate |\n    cut -d= -f2)\n\nif [[ -z \"$END_DATE\" ]]; then\n    echo \"ERROR: Could not read certificate expiry.\" >&2\n    exit 1\nfi\n\nEND_EPOCH=$(date -d \"$END_DATE\" +%s)\nNOW_EPOCH=$(date +%s)\nDAYS_LEFT=$(( (END_EPOCH - NOW_EPOCH) / 86400 ))\n\necho \"Certificate expiry: $END_DATE\"\necho \"Days remaining: $DAYS_LEFT\"\n\nif (( DAYS_LEFT < 0 )); then\n    echo \"CRITICAL: Certificate has expired.\"\n    exit 1\nelif (( DAYS_LEFT <= WARNING_DAYS )); then\n    echo \"WARNING: Certificate expires within ${WARNING_DAYS} days.\"\n    exit 1\nelse\n    echo \"OK: Certificate is valid.\"\nfi\n"
-}

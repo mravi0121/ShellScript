@@ -1,8 +1,0 @@
-{
-  "id": 48,
-  "title": "Docker Container Status",
-  "description": "Check whether a specified Docker container is running.",
-  "filename": "048_docker_container_status.sh",
-  "category": "Docker",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nCONTAINER=\"${1:-}\"\n\nif [[ -z \"$CONTAINER\" ]]; then\n    echo \"Usage: $0 container_name_or_id\" >&2\n    exit 1\nfi\n\nSTATUS=$(docker inspect -f '{{.State.Status}}' \"$CONTAINER\" 2>/dev/null || true)\n\nif [[ \"$STATUS\" == \"running\" ]]; then\n    echo \"OK: Container $CONTAINER is running.\"\nelse\n    echo \"WARNING: Container $CONTAINER status: ${STATUS:-not found}\"\n    exit 1\nfi\n"
-}

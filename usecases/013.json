@@ -1,8 +1,0 @@
-{
-  "id": 13,
-  "title": "Check Port Listening",
-  "description": "Check whether a TCP port is listening on the server.",
-  "filename": "013_check_port_listening.sh",
-  "category": "Networking",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nPORT=\"${1:-8080}\"\n\nif ss -ltn | awk '{print $4}' | grep -Eq \":${PORT}$|:${PORT}[[:space:]]\"; then\n    echo \"OK: TCP port $PORT is listening.\"\nelse\n    echo \"WARNING: TCP port $PORT is not listening.\"\n    exit 1\nfi\n"
-}

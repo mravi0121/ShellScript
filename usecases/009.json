@@ -1,8 +1,0 @@
-{
-  "id": 9,
-  "title": "Count Files in Directory",
-  "description": "Count regular files in a directory recursively.",
-  "filename": "009_count_files.sh",
-  "category": "File Management",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nDIRECTORY=\"${1:-.}\"\n\nif [[ ! -d \"$DIRECTORY\" ]]; then\n    echo \"ERROR: Directory does not exist: $DIRECTORY\" >&2\n    exit 1\nfi\n\nCOUNT=$(find \"$DIRECTORY\" -type f | wc -l)\n\necho \"Regular files under $DIRECTORY: $COUNT\"\n"
-}

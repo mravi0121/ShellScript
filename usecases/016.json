@@ -1,8 +1,0 @@
-{
-  "id": 16,
-  "title": "Check DNS Resolution",
-  "description": "Verify that a hostname resolves correctly.",
-  "filename": "016_check_dns_resolution.sh",
-  "category": "Networking",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nHOST=\"${1:-example.com}\"\n\nif getent hosts \"$HOST\" >/dev/null; then\n    echo \"OK: DNS resolution succeeded for $HOST.\"\n    getent hosts \"$HOST\"\nelse\n    echo \"ERROR: DNS resolution failed for $HOST.\" >&2\n    exit 1\nfi\n"
-}

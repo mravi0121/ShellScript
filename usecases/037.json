@@ -1,8 +1,0 @@
-{
-  "id": 37,
-  "title": "Check User Exists",
-  "description": "Check whether a Linux user account exists.",
-  "filename": "037_check_user_exists.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nUSER_NAME=\"${1:-}\"\n\nif [[ -z \"$USER_NAME\" ]]; then\n    echo \"Usage: $0 username\" >&2\n    exit 1\nfi\n\nif id \"$USER_NAME\" >/dev/null 2>&1; then\n    id \"$USER_NAME\"\n    echo \"User exists: $USER_NAME\"\nelse\n    echo \"User does not exist: $USER_NAME\"\n    exit 1\nfi\n"
-}

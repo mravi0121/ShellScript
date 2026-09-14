@@ -1,8 +1,0 @@
-{
-  "id": 31,
-  "title": "Check Process Running",
-  "description": "Check whether a process with a given name is running.",
-  "filename": "031_check_process_running.sh",
-  "category": "Process Monitoring",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nPROCESS=\"${1:-sshd}\"\n\nif pgrep -x \"$PROCESS\" >/dev/null; then\n    echo \"OK: Process '$PROCESS' is running.\"\n    pgrep -a -x \"$PROCESS\"\nelse\n    echo \"WARNING: Process '$PROCESS' is not running.\"\n    exit 1\nfi\n"
-}

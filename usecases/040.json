@@ -1,8 +1,0 @@
-{
-  "id": 40,
-  "title": "Check OS Version",
-  "description": "Display Linux distribution and OS version information.",
-  "filename": "040_check_os_version.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nif [[ -r /etc/os-release ]]; then\n    . /etc/os-release\n    echo \"Distribution: ${PRETTY_NAME:-unknown}\"\n    echo \"ID: ${ID:-unknown}\"\n    echo \"Version: ${VERSION_ID:-unknown}\"\nelse\n    uname -a\nfi\n"
-}

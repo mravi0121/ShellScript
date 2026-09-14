@@ -1,8 +1,0 @@
-{
-  "id": 14,
-  "title": "Check Remote Host Connectivity",
-  "description": "Test connectivity to a remote host using ping.",
-  "filename": "014_check_host_connectivity.sh",
-  "category": "Networking",
-  "script": "#!/bin/bash\nset -euo pipefail\n\nHOST=\"${1:-8.8.8.8}\"\n\nif ping -c 3 -W 2 \"$HOST\" >/dev/null 2>&1; then\n    echo \"OK: $HOST is reachable.\"\nelse\n    echo \"ERROR: $HOST is unreachable.\" >&2\n    exit 1\nfi\n"
-}
