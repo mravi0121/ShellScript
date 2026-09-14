@@ -1,1183 +1,892 @@
-name: Daily Shell Script
+name: Daily ShellScript + GitHub Pages
 
 on:
   schedule:
+    # 1:00 AM IST = 19:30 UTC
     - cron: "30 19 * * *"
 
   workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  generate-shell-script:
+
+  generate:
+
     runs-on: ubuntu-latest
 
     steps:
+
+      # =====================================================
+      # 1. CHECKOUT
+      # =====================================================
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+
+      # =====================================================
+      # 2. CONFIGURE GIT
+      # =====================================================
+
       - name: Configure Git
         run: |
           git config user.name "mravi0121"
           git config user.email "ravimishra121299@gmail.com"
 
-      - name: Generate next script
+
+      # =====================================================
+      # 3. GENERATE NEXT SCRIPT + ARTICLE
+      # =====================================================
+
+      - name: Generate next use case
         shell: bash
         run: |
+
           set -euo pipefail
 
           mkdir -p scripts
+          mkdir -p docs
 
-          COUNT=$(find scripts -maxdepth 1 -type f -name '[0-9][0-9][0-9]_*.sh' | wc -l)
-          NEXT=$((COUNT + 1))
 
-          echo "Existing scripts: $COUNT"
-          echo "Next script: $NEXT"
+          # -------------------------------------------------
+          # Find the next JSON file
+          # -------------------------------------------------
 
-          if [ "$NEXT" -gt 51 ]; then
-            echo "All 51 scripts have already been created."
-            exit 0
-          fi
+          NEXT_JSON=""
 
-          NUMBER=$(printf "%03d" "$NEXT")
-
-          case "$NEXT" in
-
-            1)
-              FILE="scripts/${NUMBER}_check_disk_usage.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          THRESHOLD="${1:-80}"
-
-          df -hP | awk -v threshold="$THRESHOLD" '
-          NR > 1 {
-              usage=$5
-              gsub("%","",usage)
-
-              if (usage >= threshold)
-                  print "WARNING: " $6 " is " usage "% full"
-              else
-                  print "OK: " $6 " is " usage "% full"
-          }'
-          SCRIPT
-              ;;
-
-            2)
-              FILE="scripts/${NUMBER}_check_cpu_usage.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          CPU_USAGE=$(top -bn1 | awk '/Cpu\(s\)/ {
-              print 100 - $8
-          }')
-
-          echo "CPU Usage: ${CPU_USAGE}%"
-          SCRIPT
-              ;;
-
-            3)
-              FILE="scripts/${NUMBER}_check_memory_usage.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          free -h
-
-          MEMORY_USAGE=$(free | awk '/Mem:/ {
-              printf "%.0f", ($3/$2)*100
-          }')
-
-          echo
-          echo "Memory Usage: ${MEMORY_USAGE}%"
-
-          if [ "$MEMORY_USAGE" -ge 80 ]; then
-              echo "WARNING: Memory usage is above 80%"
-          else
-              echo "OK: Memory usage is normal"
-          fi
-          SCRIPT
-              ;;
-
-            4)
-              FILE="scripts/${NUMBER}_check_load_average.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          echo "System Load:"
-          uptime
-
-          echo
-          cat /proc/loadavg
-          SCRIPT
-              ;;
-
-            5)
-              FILE="scripts/${NUMBER}_check_uptime.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          echo "System Uptime:"
-          uptime -p
-
-          echo
-          echo "Boot Time:"
-          uptime -s
-          SCRIPT
-              ;;
-
-            6)
-              FILE="scripts/${NUMBER}_top_cpu_processes.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          ps aux --sort=-%cpu | head -11
-          SCRIPT
-              ;;
-
-            7)
-              FILE="scripts/${NUMBER}_top_memory_processes.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          ps aux --sort=-%mem | head -11
-          SCRIPT
-              ;;
-
-            8)
-              FILE="scripts/${NUMBER}_kill_process.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          PID="${1:-}"
-
-          if [ -z "$PID" ]; then
-              echo "Usage: $0 <PID>"
-              exit 1
-          fi
-
-          if ! kill -0 "$PID" 2>/dev/null; then
-              echo "Process $PID does not exist."
-              exit 1
-          fi
-
-          kill "$PID"
-
-          echo "Termination signal sent to process $PID."
-          SCRIPT
-              ;;
-
-            9)
-              FILE="scripts/${NUMBER}_check_service_status.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          SERVICE="${1:-ssh}"
-
-          if systemctl is-active --quiet "$SERVICE"; then
-              echo "SUCCESS: $SERVICE is running."
-          else
-              echo "ERROR: $SERVICE is not running."
-              systemctl status "$SERVICE" --no-pager || true
-              exit 1
-          fi
-          SCRIPT
-              ;;
-
-            10)
-              FILE="scripts/${NUMBER}_auto_restart_tomcat.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          SERVICE="${1:-tomcat}"
-          LOG_FILE="${2:-/tmp/tomcat-auto-restart.log}"
-
-          log() {
-              echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
-          }
-
-          log "Checking $SERVICE service."
-
-          if systemctl is-active --quiet "$SERVICE"; then
-              log "$SERVICE is running."
-              exit 0
-          fi
-
-          log "$SERVICE is down."
-          log "Attempting to restart $SERVICE."
-
-          systemctl restart "$SERVICE"
-
-          sleep 10
-
-          if systemctl is-active --quiet "$SERVICE"; then
-              log "$SERVICE restarted successfully."
-              exit 0
-          fi
-
-          log "ERROR: Failed to restart $SERVICE."
-
-          systemctl status "$SERVICE" --no-pager >> "$LOG_FILE" 2>&1 || true
-
-          exit 1
-          SCRIPT
-              ;;
-
-            11)
-              FILE="scripts/${NUMBER}_check_failed_services.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          systemctl --failed --no-pager
-          SCRIPT
-              ;;
-
-            12)
-              FILE="scripts/${NUMBER}_check_open_ports.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          ss -tuln
-          SCRIPT
-              ;;
-
-            13)
-              FILE="scripts/${NUMBER}_check_network_connectivity.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          HOST="${1:-google.com}"
-
-          if ping -c 3 "$HOST" >/dev/null 2>&1; then
-              echo "SUCCESS: $HOST is reachable."
-          else
-              echo "ERROR: $HOST is unreachable."
-              exit 1
-          fi
-          SCRIPT
-              ;;
-
-            14)
-              FILE="scripts/${NUMBER}_check_dns_resolution.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          DOMAIN="${1:-google.com}"
-
-          if getent hosts "$DOMAIN"; then
-              echo "SUCCESS: DNS resolution works for $DOMAIN."
-          else
-              echo "ERROR: DNS resolution failed for $DOMAIN."
-              exit 1
-          fi
-          SCRIPT
-              ;;
-
-            15)
-              FILE="scripts/${NUMBER}_check_http_endpoint.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          URL="${1:-https://example.com}"
-
-          HTTP_STATUS=$(curl -L -s \
-              -o /dev/null \
-              -w "%{http_code}" \
-              "$URL")
-
-          echo "URL: $URL"
-          echo "HTTP Status: $HTTP_STATUS"
-
-          if [[ "$HTTP_STATUS" =~ ^[23][0-9][0-9]$ ]]; then
-              echo "SUCCESS: Endpoint is healthy."
-          else
-              echo "ERROR: Endpoint returned HTTP $HTTP_STATUS."
-              exit 1
-          fi
-          SCRIPT
-              ;;
-
-            16)
-              FILE="scripts/${NUMBER}_find_large_files.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          DIRECTORY="${1:-.}"
-          SIZE="${2:-100M}"
-
-          find "$DIRECTORY" \
+          for JSON_FILE in $(find usecases \
+              -maxdepth 1 \
               -type f \
-              -size +"$SIZE" \
-              -exec ls -lh {} \;
-          SCRIPT
-              ;;
+              -name '[0-9][0-9][0-9].json' |
+              sort); do
 
-            17)
-              FILE="scripts/${NUMBER}_find_recent_files.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
+              NUMBER=$(basename "$JSON_FILE" .json)
 
-          set -euo pipefail
+              SCRIPT_FILE=$(python3 - "$JSON_FILE" <<'PY'
+          import json
+          import sys
 
-          DIRECTORY="${1:-.}"
+          with open(sys.argv[1], encoding="utf-8") as f:
+              data = json.load(f)
 
-          find "$DIRECTORY" \
-              -type f \
-              -mtime -1 \
-              -print
-          SCRIPT
-              ;;
-
-            18)
-              FILE="scripts/${NUMBER}_find_old_files.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          DIRECTORY="${1:-.}"
-          DAYS="${2:-30}"
-
-          find "$DIRECTORY" \
-              -type f \
-              -mtime +"$DAYS" \
-              -print
-          SCRIPT
-              ;;
-
-            19)
-              FILE="scripts/${NUMBER}_cleanup_old_logs.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          LOG_DIR="${1:-/var/log}"
-          DAYS="${2:-30}"
-
-          find "$LOG_DIR" \
-              -type f \
-              -name "*.log" \
-              -mtime +"$DAYS" \
-              -print
-          SCRIPT
-              ;;
-
-            20)
-              FILE="scripts/${NUMBER}_archive_logs.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          LOG_DIR="${1:-/tmp/logs}"
-          OUTPUT_DIR="${2:-$HOME/log-archives}"
-
-          if [ ! -d "$LOG_DIR" ]; then
-              echo "Directory not found: $LOG_DIR"
-              exit 1
-          fi
-
-          mkdir -p "$OUTPUT_DIR"
-
-          TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-          ARCHIVE="$OUTPUT_DIR/logs_$TIMESTAMP.tar.gz"
-
-          tar -czf "$ARCHIVE" "$LOG_DIR"
-
-          echo "Archive created:"
-          echo "$ARCHIVE"
-          SCRIPT
-              ;;
-
-            21)
-              FILE="scripts/${NUMBER}_search_error_logs.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          LOG_FILE="${1:-/var/log/syslog}"
-
-          if [ ! -f "$LOG_FILE" ]; then
-              echo "Log file not found: $LOG_FILE"
-              exit 1
-          fi
-
-          grep -Ei "error|warn|failed|critical" "$LOG_FILE" || true
-          SCRIPT
-              ;;
-
-            22)
-              FILE="scripts/${NUMBER}_monitor_log_file.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          LOG_FILE="${1:-/var/log/syslog}"
-
-          if [ ! -f "$LOG_FILE" ]; then
-              echo "Log file not found: $LOG_FILE"
-              exit 1
-          fi
-
-          tail -F "$LOG_FILE" | grep --line-buffered -Ei "error|failed|critical"
-          SCRIPT
-              ;;
-
-            23)
-              FILE="scripts/${NUMBER}_analyze_http_status_codes.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          LOG_FILE="${1:-access.log}"
-
-          if [ ! -f "$LOG_FILE" ]; then
-              echo "Log file not found: $LOG_FILE"
-              exit 1
-          fi
-
-          awk '{
-              for (i=1; i<=NF; i++)
-                  if ($i ~ /^[1-5][0-9][0-9]$/)
-                      print $i
-          }' "$LOG_FILE" |
-          sort |
-          uniq -c |
-          sort -nr
-          SCRIPT
-              ;;
-
-            24)
-              FILE="scripts/${NUMBER}_check_failed_ssh_logins.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          if [ -f /var/log/auth.log ]; then
-              grep "Failed password" /var/log/auth.log || true
-          elif [ -f /var/log/secure ]; then
-              grep "Failed password" /var/log/secure || true
-          else
-              echo "Authentication log not found."
-          fi
-          SCRIPT
-              ;;
-
-            25)
-              FILE="scripts/${NUMBER}_check_inode_usage.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          df -ih
-          SCRIPT
-              ;;
-
-            26)
-              FILE="scripts/${NUMBER}_find_large_directories.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          DIRECTORY="${1:-.}"
-
-          du -h --max-depth=1 "$DIRECTORY" 2>/dev/null |
-          sort -hr |
-          head -20
-          SCRIPT
-              ;;
-
-            27)
-              FILE="scripts/${NUMBER}_check_file_permissions.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          FILE="${1:-/etc/passwd}"
-
-          if [ ! -e "$FILE" ]; then
-              echo "File does not exist: $FILE"
-              exit 1
-          fi
-
-          ls -l "$FILE"
-          stat "$FILE"
-          SCRIPT
-              ;;
-
-            28)
-              FILE="scripts/${NUMBER}_find_world_writable_files.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          DIRECTORY="${1:-.}"
-
-          find "$DIRECTORY" \
-              -type f \
-              -perm -0002 \
-              -print
-          SCRIPT
-              ;;
-
-            29)
-              FILE="scripts/${NUMBER}_find_orphaned_files.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          DIRECTORY="${1:-/}"
-
-          find "$DIRECTORY" -xdev -nouser -print 2>/dev/null || true
-
-          find "$DIRECTORY" -xdev -nogroup -print 2>/dev/null || true
-          SCRIPT
-              ;;
-
-            30)
-              FILE="scripts/${NUMBER}_create_backup.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          SOURCE="${1:-$HOME/Documents}"
-          BACKUP_DIR="${2:-$HOME/backups}"
-
-          if [ ! -d "$SOURCE" ]; then
-              echo "Source directory does not exist."
-              exit 1
-          fi
-
-          mkdir -p "$BACKUP_DIR"
-
-          TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-          BACKUP="$BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
-
-          tar -czf "$BACKUP" "$SOURCE"
-
-          echo "Backup created: $BACKUP"
-          SCRIPT
-              ;;
-
-            31)
-              FILE="scripts/${NUMBER}_restore_backup.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          BACKUP="${1:-}"
-          DESTINATION="${2:-.}"
-
-          if [ -z "$BACKUP" ]; then
-              echo "Usage: $0 <backup.tar.gz> [destination]"
-              exit 1
-          fi
-
-          if [ ! -f "$BACKUP" ]; then
-              echo "Backup not found."
-              exit 1
-          fi
-
-          mkdir -p "$DESTINATION"
-
-          tar -xzf "$BACKUP" -C "$DESTINATION"
-
-          echo "Backup restored successfully."
-          SCRIPT
-              ;;
-
-            32)
-              FILE="scripts/${NUMBER}_backup_user_home.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          USER_NAME="${1:-$USER}"
-          BACKUP_DIR="${2:-$HOME/backups}"
-
-          USER_HOME=$(getent passwd "$USER_NAME" | cut -d: -f6)
-
-          if [ -z "$USER_HOME" ] || [ ! -d "$USER_HOME" ]; then
-              echo "User home directory not found."
-              exit 1
-          fi
-
-          mkdir -p "$BACKUP_DIR"
-
-          TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-          BACKUP="$BACKUP_DIR/${USER_NAME}_$TIMESTAMP.tar.gz"
-
-          tar -czf "$BACKUP" "$USER_HOME"
-
-          echo "Backup created: $BACKUP"
-          SCRIPT
-              ;;
-
-            33)
-              FILE="scripts/${NUMBER}_check_logged_in_users.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          who
-
-          echo
-          echo "User count:"
-          who | wc -l
-          SCRIPT
-              ;;
-
-            34)
-              FILE="scripts/${NUMBER}_check_user_expiry.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          USER_NAME="${1:-$USER}"
-
-          chage -l "$USER_NAME"
-          SCRIPT
-              ;;
-
-            35)
-              FILE="scripts/${NUMBER}_create_users_from_file.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          USER_FILE="${1:-users.txt}"
-
-          if [ ! -f "$USER_FILE" ]; then
-              echo "User file not found."
-              exit 1
-          fi
-
-          while IFS= read -r USER_NAME; do
-
-              [ -z "$USER_NAME" ] && continue
-
-              if id "$USER_NAME" >/dev/null 2>&1; then
-                  echo "User already exists: $USER_NAME"
-              else
-                  sudo useradd -m "$USER_NAME"
-                  echo "Created user: $USER_NAME"
-              fi
-
-          done < "$USER_FILE"
-          SCRIPT
-              ;;
-
-            36)
-              FILE="scripts/${NUMBER}_system_information.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          echo "Hostname:"
-          hostname
-
-          echo
-          echo "Operating System:"
-          grep PRETTY_NAME /etc/os-release
-
-          echo
-          echo "Kernel:"
-          uname -r
-
-          echo
-          echo "CPU:"
-          nproc
-
-          echo
-          echo "Memory:"
-          free -h
-
-          echo
-          echo "Disk:"
-          df -h /
-
-          echo
-          echo "Uptime:"
-          uptime -p
-          SCRIPT
-              ;;
-
-            37)
-              FILE="scripts/${NUMBER}_check_installed_packages.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          if command -v dpkg >/dev/null 2>&1; then
-              dpkg --get-selections
-          elif command -v rpm >/dev/null 2>&1; then
-              rpm -qa
-          else
-              echo "Unsupported package manager."
-              exit 1
-          fi
-          SCRIPT
-              ;;
-
-            38)
-              FILE="scripts/${NUMBER}_check_environment_variables.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          printenv | sort
-          SCRIPT
-              ;;
-
-            39)
-              FILE="scripts/${NUMBER}_validate_environment_variables.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          REQUIRED_VARS=(
-              "APP_ENV"
-              "APP_NAME"
-              "AWS_REGION"
+          print(data["filename"])
+          PY
           )
 
-          MISSING=0
-
-          for VAR in "${REQUIRED_VARS[@]}"; do
-              if [ -z "${!VAR:-}" ]; then
-                  echo "ERROR: $VAR is not set."
-                  MISSING=1
-              else
-                  echo "OK: $VAR is configured."
+              if [ ! -f "scripts/$SCRIPT_FILE" ]; then
+                  NEXT_JSON="$JSON_FILE"
+                  break
               fi
+
           done
 
-          [ "$MISSING" -eq 0 ]
-          SCRIPT
-              ;;
 
-            40)
-              FILE="scripts/${NUMBER}_git_status_check.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
+          # -------------------------------------------------
+          # Stop if all 51 are completed
+          # -------------------------------------------------
 
-          set -euo pipefail
+          if [ -z "$NEXT_JSON" ]; then
 
-          if [ ! -d ".git" ]; then
-              echo "Not a Git repository."
-              exit 1
+              echo "All 51 use cases have already been generated."
+
+              exit 0
+
           fi
 
-          git status --short
+
+          echo "Selected JSON:"
+          echo "$NEXT_JSON"
+
+
+          # -------------------------------------------------
+          # Read JSON
+          # -------------------------------------------------
+
+          eval "$(
+            python3 - "$NEXT_JSON" <<'PY'
+          import json
+          import sys
+          import shlex
+
+          with open(sys.argv[1], encoding="utf-8") as f:
+              data = json.load(f)
+
+          for key in ["id", "title", "description", "filename", "category", "script"]:
+              value = data.get(key, "")
+              print(f"{key.upper()}={shlex.quote(str(value))}")
+          PY
+          )"
+
 
           echo
-          echo "Current branch:"
-          git branch --show-current
-          SCRIPT
-              ;;
+          echo "========================================"
+          echo "Use Case : $ID"
+          echo "Title    : $TITLE"
+          echo "Category : $CATEGORY"
+          echo "File     : $FILENAME"
+          echo "========================================"
+          echo
 
-            41)
-              FILE="scripts/${NUMBER}_find_git_changes.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
 
-          set -euo pipefail
+          # =================================================
+          # 4. CREATE SHELL SCRIPT
+          # =================================================
 
-          if [ -z "$(git status --porcelain)" ]; then
-              echo "Working tree is clean."
-          else
-              echo "Uncommitted changes:"
-              git status --short
-          fi
-          SCRIPT
-              ;;
+          SCRIPT_PATH="scripts/$FILENAME"
 
-            42)
-              FILE="scripts/${NUMBER}_git_backup.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
+          printf '%s\n' "$SCRIPT" > "$SCRIPT_PATH"
 
-          set -euo pipefail
+          chmod +x "$SCRIPT_PATH"
 
-          TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-          BRANCH="backup/$TIMESTAMP"
 
-          git switch -c "$BRANCH"
+          echo "Created:"
+          echo "$SCRIPT_PATH"
 
-          echo "Backup branch created:"
-          echo "$BRANCH"
-          SCRIPT
-              ;;
 
-            43)
-              FILE="scripts/${NUMBER}_docker_container_health.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          if ! command -v docker >/dev/null 2>&1; then
-              echo "Docker is not installed."
-              exit 1
-          fi
-
-          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
-          SCRIPT
-              ;;
-
-            44)
-              FILE="scripts/${NUMBER}_cleanup_docker_containers.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          if ! command -v docker >/dev/null 2>&1; then
-              echo "Docker is not installed."
-              exit 1
-          fi
-
-          docker container prune -f
-          SCRIPT
-              ;;
-
-            45)
-              FILE="scripts/${NUMBER}_cleanup_docker_images.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          if ! command -v docker >/dev/null 2>&1; then
-              echo "Docker is not installed."
-              exit 1
-          fi
-
-          docker image prune -f
-          SCRIPT
-              ;;
-
-            46)
-              FILE="scripts/${NUMBER}_kubernetes_pod_health.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
-
-          set -euo pipefail
-
-          NAMESPACE="${1:-default}"
-
-          if ! command -v kubectl >/dev/null 2>&1; then
-              echo "kubectl is not installed."
-              exit 1
-          fi
-
-          kubectl get pods -n "$NAMESPACE"
+          # =================================================
+          # 5. VALIDATE SHELL SCRIPT
+          # =================================================
 
           echo
-          echo "Non-running pods:"
+          echo "Validating Shell script..."
 
-          kubectl get pods \
-              -n "$NAMESPACE" \
-              --field-selector=status.phase!=Running \
-              --no-headers || true
-          SCRIPT
-              ;;
+          bash -n "$SCRIPT_PATH"
 
-            47)
-              FILE="scripts/${NUMBER}_kubernetes_node_health.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
+          echo "Shell syntax validation passed."
 
-          set -euo pipefail
 
-          if ! command -v kubectl >/dev/null 2>&1; then
-              echo "kubectl is not installed."
-              exit 1
-          fi
+          # =================================================
+          # 6. CREATE HTML ARTICLE
+          # =================================================
 
-          kubectl get nodes -o wide
-          SCRIPT
-              ;;
+          HTML_NAME="${FILENAME%.sh}.html"
 
-            48)
-              FILE="scripts/${NUMBER}_restart_unhealthy_kubernetes_deployment.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
+          HTML_NAME="${HTML_NAME#???_}"
 
-          set -euo pipefail
+          HTML_NAME="${ID}_$(echo "$TITLE" |
+            tr '[:upper:]' '[:lower:]' |
+            sed 's/[^a-z0-9]/-/g' |
+            sed 's/-\+/-/g' |
+            sed 's/^-//' |
+            sed 's/-$//').html"
 
-          DEPLOYMENT="${1:-}"
-          NAMESPACE="${2:-default}"
 
-          if [ -z "$DEPLOYMENT" ]; then
-              echo "Usage: $0 <deployment> [namespace]"
-              exit 1
-          fi
+          HTML_PATH="docs/$HTML_NAME"
 
-          READY=$(kubectl get deployment "$DEPLOYMENT" \
-              -n "$NAMESPACE" \
-              -o jsonpath='{.status.readyReplicas}')
 
-          DESIRED=$(kubectl get deployment "$DEPLOYMENT" \
-              -n "$NAMESPACE" \
-              -o jsonpath='{.spec.replicas}')
+          # -------------------------------------------------
+          # Escape HTML
+          # -------------------------------------------------
 
-          READY="${READY:-0}"
-          DESIRED="${DESIRED:-0}"
+          ESCAPED_SCRIPT=$(python3 - "$SCRIPT_PATH" <<'PY'
+          import html
+          import sys
 
-          echo "Ready replicas: $READY"
-          echo "Desired replicas: $DESIRED"
+          with open(sys.argv[1], encoding="utf-8") as f:
+              content = f.read()
 
-          if [ "$READY" -lt "$DESIRED" ]; then
-              echo "Deployment is unhealthy."
-              kubectl rollout restart deployment "$DEPLOYMENT" -n "$NAMESPACE"
-              kubectl rollout status deployment "$DEPLOYMENT" -n "$NAMESPACE"
-          else
-              echo "Deployment is healthy."
-          fi
-          SCRIPT
-              ;;
+          print(html.escape(content))
+          PY
+          )
 
-            49)
-              FILE="scripts/${NUMBER}_check_ec2_status.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
 
-          set -euo pipefail
+          ESCAPED_TITLE=$(python3 - "$TITLE" <<'PY'
+          import html
+          import sys
 
-          REGION="${1:-}"
+          print(html.escape(sys.argv[1]))
+          PY
+          )
 
-          if [ -z "$REGION" ]; then
-              echo "Usage: $0 <aws-region>"
-              exit 1
-          fi
 
-          if ! command -v aws >/dev/null 2>&1; then
-              echo "AWS CLI is not installed."
-              exit 1
-          fi
+          ESCAPED_DESCRIPTION=$(python3 - "$DESCRIPTION" <<'PY'
+          import html
+          import sys
 
-          aws ec2 describe-instances \
-              --region "$REGION" \
-              --query 'Reservations[].Instances[].[InstanceId,State.Name,PrivateIpAddress]' \
-              --output table
-          SCRIPT
-              ;;
+          print(html.escape(sys.argv[1]))
+          PY
+          )
 
-            50)
-              FILE="scripts/${NUMBER}_check_s3_bucket.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
 
-          set -euo pipefail
+          # -------------------------------------------------
+          # Generate article
+          # -------------------------------------------------
 
-          BUCKET="${1:-}"
+          cat > "$HTML_PATH" <<HTML
+          <!DOCTYPE html>
 
-          if [ -z "$BUCKET" ]; then
-              echo "Usage: $0 <bucket-name>"
-              exit 1
-          fi
+          <html lang="en">
 
-          if ! command -v aws >/dev/null 2>&1; then
-              echo "AWS CLI is not installed."
-              exit 1
-          fi
+          <head>
 
-          if aws s3 ls "s3://$BUCKET" >/dev/null 2>&1; then
-              echo "SUCCESS: Bucket is accessible."
-          else
-              echo "ERROR: Bucket is not accessible."
-              exit 1
-          fi
-          SCRIPT
-              ;;
+          <meta charset="UTF-8">
 
-            51)
-              FILE="scripts/${NUMBER}_check_process_and_restart.sh"
-              cat > "$FILE" <<'SCRIPT'
-          #!/bin/bash
+          <meta name="viewport"
+                content="width=device-width, initial-scale=1.0">
 
-          set -euo pipefail
+          <meta name="description"
+                content="${ESCAPED_DESCRIPTION}">
 
-          PROCESS_NAME="${1:-nginx}"
-          SERVICE_NAME="${2:-nginx}"
+          <title>${ESCAPED_TITLE}</title>
 
-          if pgrep -x "$PROCESS_NAME" >/dev/null 2>&1; then
-              echo "$PROCESS_NAME is running."
-          else
-              echo "$PROCESS_NAME is not running."
-              echo "Attempting to restart $SERVICE_NAME..."
+          <link rel="stylesheet" href="style.css">
 
-              sudo systemctl restart "$SERVICE_NAME"
+          </head>
 
-              sleep 5
 
-              if pgrep -x "$PROCESS_NAME" >/dev/null 2>&1; then
-                  echo "$PROCESS_NAME restarted successfully."
-              else
-                  echo "ERROR: Failed to restart $PROCESS_NAME."
-                  exit 1
-              fi
-          fi
-          SCRIPT
-              ;;
+          <body>
 
-            *)
-              echo "Invalid use case."
-              exit 1
-              ;;
+          <main>
 
-          esac
+          <nav>
 
-          chmod +x "$FILE"
+          <a href="index.html">
+          ← Back to ShellScript
+          </a>
 
-          echo "Generated: $FILE"
+          </nav>
 
-      - name: Validate shell script
-        shell: bash
-        run: |
-          set -euo pipefail
 
-          SCRIPT=$(find scripts \
+          <header>
+
+          <span class="badge">
+          Day ${ID}
+          </span>
+
+          <h1>${ESCAPED_TITLE}</h1>
+
+          <p class="description">
+          ${ESCAPED_DESCRIPTION}
+          </p>
+
+          <p class="category">
+          Category: ${CATEGORY}
+          </p>
+
+          </header>
+
+
+          <section>
+
+          <h2>Overview</h2>
+
+          <p>
+          ${ESCAPED_DESCRIPTION}
+          </p>
+
+          </section>
+
+
+          <section>
+
+          <h2>Shell Script</h2>
+
+          <pre><code>${ESCAPED_SCRIPT}</code></pre>
+
+          </section>
+
+
+          <section>
+
+          <h2>Use Case</h2>
+
+          <p>
+          This script demonstrates a practical Linux,
+          Shell scripting and DevOps automation use case.
+          </p>
+
+          </section>
+
+
+          <section>
+
+          <h2>Key Concepts</h2>
+
+          <ul>
+
+          <li>Linux administration</li>
+
+          <li>Shell scripting</li>
+
+          <li>Automation</li>
+
+          <li>Monitoring and troubleshooting</li>
+
+          <li>DevOps practices</li>
+
+          </ul>
+
+          </section>
+
+
+          <section>
+
+          <h2>Source Code</h2>
+
+          <p>
+
+          The original Shell script is available in the
+          GitHub repository.
+
+          </p>
+
+          <a
+            class="button"
+            href="https://github.com/mravi0121/ShellScript/blob/main/scripts/${FILENAME}"
+            target="_blank">
+
+            View Script on GitHub →
+
+          </a>
+
+          </section>
+
+
+          </main>
+
+          </body>
+
+          </html>
+          HTML
+
+
+          echo
+          echo "Created article:"
+          echo "$HTML_PATH"
+
+
+          # =================================================
+          # 7. CREATE WEBSITE CSS
+          # =================================================
+
+          cat > docs/style.css <<'CSS'
+
+          * {
+              box-sizing: border-box;
+          }
+
+          body {
+              margin: 0;
+
+              font-family:
+                  -apple-system,
+                  BlinkMacSystemFont,
+                  "Segoe UI",
+                  Roboto,
+                  Arial,
+                  sans-serif;
+
+              line-height: 1.7;
+
+              background: #f6f8fa;
+
+              color: #24292f;
+          }
+
+          main {
+              max-width: 950px;
+
+              margin: 0 auto;
+
+              padding: 50px 25px;
+          }
+
+          nav {
+              margin-bottom: 35px;
+          }
+
+          nav a {
+              text-decoration: none;
+
+              color: #0969da;
+
+              font-weight: 600;
+          }
+
+          header {
+              background: white;
+
+              padding: 35px;
+
+              border-radius: 14px;
+
+              border: 1px solid #d0d7de;
+
+              margin-bottom: 25px;
+          }
+
+          h1 {
+              font-size: 2.5rem;
+
+              line-height: 1.2;
+
+              margin: 15px 0;
+          }
+
+          h2 {
+              margin-top: 0;
+          }
+
+          section {
+              background: white;
+
+              padding: 30px;
+
+              margin: 25px 0;
+
+              border-radius: 14px;
+
+              border: 1px solid #d0d7de;
+          }
+
+          .badge {
+              display: inline-block;
+
+              padding: 5px 12px;
+
+              border-radius: 20px;
+
+              background: #ddf4ff;
+
+              color: #0969da;
+
+              font-size: 14px;
+
+              font-weight: 600;
+          }
+
+          .description {
+              font-size: 1.1rem;
+
+              color: #57606a;
+          }
+
+          .category {
+              font-size: 14px;
+
+              color: #57606a;
+          }
+
+          pre {
+              background: #161b22;
+
+              color: #f0f6fc;
+
+              padding: 25px;
+
+              border-radius: 10px;
+
+              overflow-x: auto;
+
+              font-size: 14px;
+
+              line-height: 1.6;
+          }
+
+          code {
+              font-family:
+                  "SFMono-Regular",
+                  Consolas,
+                  "Liberation Mono",
+                  monospace;
+          }
+
+          .button {
+              display: inline-block;
+
+              padding: 10px 18px;
+
+              background: #0969da;
+
+              color: white;
+
+              text-decoration: none;
+
+              border-radius: 7px;
+
+              font-weight: 600;
+          }
+
+          li {
+              margin: 8px 0;
+          }
+
+          @media (max-width: 600px) {
+
+              main {
+                  padding: 25px 15px;
+              }
+
+              h1 {
+                  font-size: 2rem;
+              }
+
+              section,
+              header {
+                  padding: 20px;
+              }
+
+          }
+
+          CSS
+
+
+          # =================================================
+          # 8. GENERATE HOMEPAGE
+          # =================================================
+
+          cat > docs/index.html <<'HTML'
+          <!DOCTYPE html>
+
+          <html lang="en">
+
+          <head>
+
+          <meta charset="UTF-8">
+
+          <meta name="viewport"
+                content="width=device-width, initial-scale=1.0">
+
+          <title>ShellScript | Ravi Mishra</title>
+
+          <link rel="stylesheet" href="style.css">
+
+          </head>
+
+
+          <body>
+
+          <main>
+
+          <header>
+
+          <span class="badge">
+          DevOps Portfolio
+          </span>
+
+          <h1>🐚 ShellScript</h1>
+
+          <p class="description">
+
+          Practical Shell Scripting and DevOps
+          Automation Use Cases.
+
+          </p>
+
+          <p>
+
+          51 real-world Shell scripting examples covering
+          Linux, monitoring, networking, services,
+          Docker, Kubernetes, AWS and DevOps automation.
+
+          </p>
+
+          <p>
+
+          <strong>GitHub:</strong>
+
+          <a href="https://github.com/mravi0121/ShellScript"
+             target="_blank">
+
+          mravi0121/ShellScript
+
+          </a>
+
+          </p>
+
+          </header>
+
+
+          <section>
+
+          <h2>Daily Shell Scripts</h2>
+
+          HTML
+
+
+          # -------------------------------------------------
+          # Add articles
+          # -------------------------------------------------
+
+          find docs \
             -maxdepth 1 \
             -type f \
-            -name '[0-9][0-9][0-9]_*.sh' |
-            sort |
-            tail -1)
+            -name '[0-9][0-9][0-9]_*.html' |
+            sort -r |
+            while read -r ARTICLE; do
 
-          echo "Validating $SCRIPT"
+              BASENAME=$(basename "$ARTICLE" .html)
 
-          bash -n "$SCRIPT"
+              TITLE=$(echo "$BASENAME" |
+                sed 's/^[0-9][0-9][0-9]_//' |
+                tr '_' ' ' |
+                sed 's/\b\(.\)/\u\1/g')
 
-          echo "Syntax validation successful."
 
-      - name: Update README
-        shell: bash
-        run: |
-          set -euo pipefail
+              cat >> docs/index.html <<HTML
 
-          COUNT=$(find scripts \
-            -maxdepth 1 \
-            -type f \
-            -name '[0-9][0-9][0-9]_*.sh' |
-            wc -l)
+          <div class="card">
+
+          <h3>${TITLE}</h3>
+
+          <p>
+          Daily Shell scripting and DevOps use case.
+          </p>
+
+          <a
+            href="${BASENAME}.html">
+
+            Read Article →
+
+          </a>
+
+          </div>
+
+          HTML
+
+          done
+
+
+          cat >> docs/index.html <<'HTML'
+
+          </section>
+
+
+          </main>
+
+          </body>
+
+          </html>
+          HTML
+
+
+          # =================================================
+          # 9. ADD CARD CSS
+          # =================================================
+
+          cat >> docs/style.css <<'CSS'
+
+          .card {
+              border: 1px solid #d0d7de;
+
+              border-radius: 10px;
+
+              padding: 20px;
+
+              margin: 18px 0;
+
+              background: #ffffff;
+          }
+
+          .card h3 {
+              margin-top: 0;
+          }
+
+          .card a {
+              color: #0969da;
+
+              text-decoration: none;
+
+              font-weight: 600;
+          }
+
+          CSS
+
+
+          # =================================================
+          # 10. UPDATE README
+          # =================================================
+
+          SCRIPT_COUNT=$(find scripts \
+              -maxdepth 1 \
+              -type f \
+              -name '[0-9][0-9][0-9]_*.sh' |
+              wc -l)
+
 
           cat > README.md <<EOF
-          # ShellScript
+          # 🐚 ShellScript
 
-          A collection of practical Shell scripting examples for Linux, DevOps, AWS, Docker and Kubernetes.
+          Practical Shell Scripting and DevOps Automation.
+
+          ## Progress
+
+          **${SCRIPT_COUNT}/51 use cases completed**
 
           ## Topics
 
-          - Linux Administration
-          - CPU and Memory Monitoring
-          - Disk Monitoring
-          - Process Management
-          - Service Monitoring
-          - Tomcat Auto-Restart
-          - Network Troubleshooting
-          - DNS and HTTP Checks
-          - Log Analysis
-          - Backup and Recovery
-          - File and Permission Management
-          - User Management
-          - Git Automation
+          - Linux
+          - Shell Scripting
+          - Monitoring
+          - Networking
+          - Service Management
+          - Log Management
+          - Backup
+          - Security
+          - Git
           - Docker
           - Kubernetes
           - AWS
-          - Self-Healing Automation
+          - DevOps Automation
 
-          ## Scripts
+          ## GitHub Pages
 
-          Currently available: ${COUNT}/51
+          https://mravi0121.github.io/ShellScript/
 
-          Each script demonstrates a practical Shell scripting or DevOps use case.
+          ## Repository
 
-          ## Usage
+          https://github.com/mravi0121/ShellScript
 
-          \`\`\`bash
-          chmod +x scripts/001_check_disk_usage.sh
-          ./scripts/001_check_disk_usage.sh
-          \`\`\`
+          ## Author
+
+          Ravi Mishra
+
+          GitHub: https://github.com/mravi0121
+
           EOF
 
-      - name: Commit and push
+
+          # =================================================
+          # 11. SHOW GENERATED FILES
+          # =================================================
+
+          echo
+          echo "========================================"
+          echo "Generated Files"
+          echo "========================================"
+
+          echo
+
+          find scripts \
+            -maxdepth 1 \
+            -type f |
+            sort
+
+          echo
+
+          find docs \
+            -maxdepth 1 \
+            -type f |
+            sort
+
+
+      # =====================================================
+      # 12. COMMIT
+      # =====================================================
+
+      - name: Commit changes
         shell: bash
         run: |
+
           set -euo pipefail
 
-          git add scripts/ README.md
+          git add scripts/
+          git add docs/
+          git add README.md
 
           if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
+
+              echo "No changes to commit."
+
+              exit 0
+
           fi
 
+
           SCRIPT=$(git diff --cached \
-            --name-only |
-            grep '^scripts/.*\.sh$' |
-            head -1)
+              --name-only |
+              grep '^scripts/.*\.sh$' |
+              head -1 || true)
 
-          SCRIPT_NAME=$(basename "$SCRIPT" .sh)
 
-          MESSAGE="Adding ${SCRIPT_NAME#*_} script"
-          MESSAGE="${MESSAGE//_/ }"
+          if [ -n "$SCRIPT" ]; then
 
-          git commit -m "$MESSAGE"
+              SCRIPT_NAME=$(basename "$SCRIPT" .sh)
+
+              git commit \
+                -m "Add daily ShellScript: ${SCRIPT_NAME}"
+
+          else
+
+              git commit \
+                -m "Update ShellScript website"
+
+          fi
+
+
+      # =====================================================
+      # 13. PUSH
+      # =====================================================
+
+      - name: Push changes
+        run: |
 
           git push
+
+
+  # ========================================================
+  # GITHUB PAGES DEPLOYMENT
+  # ========================================================
+
+  deploy:
+
+    needs: generate
+
+    runs-on: ubuntu-latest
+
+    permissions:
+
+      contents: read
+
+      pages: write
+
+      id-token: write
+
+    environment:
+
+      name: github-pages
+
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+
+      # ----------------------------------------------------
+      # Checkout latest repository
+      # ----------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # ----------------------------------------------------
+      # Configure Pages
+      # ----------------------------------------------------
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+
+      # ----------------------------------------------------
+      # Upload docs/
+      # ----------------------------------------------------
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+
+      # ----------------------------------------------------
+      # Deploy
+      # ----------------------------------------------------
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
