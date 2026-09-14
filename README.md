@@ -4,7 +4,7 @@ Practical Shell Scripting and DevOps Automation.
 
 ## Progress
 
-**4/51 use cases completed**
+**5/51 use cases completed**
 
 ## Topics
 
