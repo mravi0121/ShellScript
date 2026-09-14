@@ -2,149 +2,77 @@ name: Daily Shell Script
 
 on:
   schedule:
-    # Every day at 1:00 AM IST
-    # 1:00 AM IST = 7:30 PM UTC (previous day)
     - cron: "30 19 * * *"
 
-  # Allows manual execution from:
-  # GitHub -> Actions -> Daily Shell Script -> Run workflow
   workflow_dispatch:
 
-# Allow GitHub Actions to commit and push files
 permissions:
   contents: write
 
 jobs:
   generate-shell-script:
-
     runs-on: ubuntu-latest
 
     steps:
-
-      # ==========================================================
-      # 1. Checkout repository
-      # ==========================================================
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ==========================================================
-      # 2. Configure Git
-      # ==========================================================
-
       - name: Configure Git
         run: |
           git config user.name "mravi0121"
           git config user.email "ravimishra121299@gmail.com"
 
-      # ==========================================================
-      # 3. Generate the next Shell Script
-      # ==========================================================
-
-      - name: Generate daily shell script
+      - name: Generate next script
         shell: bash
         run: |
-
           set -euo pipefail
 
           mkdir -p scripts
 
-          # ------------------------------------------------------
-          # Count already generated scripts
-          # ------------------------------------------------------
+          COUNT=$(find scripts -maxdepth 1 -type f -name '[0-9][0-9][0-9]_*.sh' | wc -l)
+          NEXT=$((COUNT + 1))
 
-          EXISTING_COUNT=$(find scripts \
-            -maxdepth 1 \
-            -type f \
-            -name '[0-9][0-9][0-9]_*.sh' \
-            | wc -l)
+          echo "Existing scripts: $COUNT"
+          echo "Next script: $NEXT"
 
-          NEXT_NUMBER=$((EXISTING_COUNT + 1))
-
-          echo "Existing scripts : $EXISTING_COUNT"
-          echo "Next script      : $NEXT_NUMBER"
-
-          # ------------------------------------------------------
-          # Stop after all 51 use cases
-          # ------------------------------------------------------
-
-          if [ "$NEXT_NUMBER" -gt 51 ]; then
-            echo "=========================================="
-            echo "All 51 use cases have been completed."
-            echo "No new script will be generated."
-            echo "=========================================="
+          if [ "$NEXT" -gt 51 ]; then
+            echo "All 51 scripts have already been created."
             exit 0
           fi
 
-          # ------------------------------------------------------
-          # Format script number
-          # ------------------------------------------------------
+          NUMBER=$(printf "%03d" "$NEXT")
 
-          NUMBER=$(printf "%03d" "$NEXT_NUMBER")
-
-          echo "Generating use case #$NUMBER"
-
-          # ------------------------------------------------------
-          # Select use case
-          # ------------------------------------------------------
-
-          case "$NEXT_NUMBER" in
-
-            # ====================================================
-            # 001 - Disk Usage
-            # ====================================================
+          case "$NEXT" in
 
             1)
-
               FILE="scripts/${NUMBER}_check_disk_usage.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : check_disk_usage.sh
-          # Description : Check disk usage and warn above threshold
-          # ==========================================================
-
           set -euo pipefail
 
-          THRESHOLD=80
-
-          echo "Checking disk usage..."
-          echo
+          THRESHOLD="${1:-80}"
 
           df -hP | awk -v threshold="$THRESHOLD" '
           NR > 1 {
               usage=$5
               gsub("%","",usage)
 
-              if (usage >= threshold) {
+              if (usage >= threshold)
                   print "WARNING: " $6 " is " usage "% full"
-              } else {
+              else
                   print "OK: " $6 " is " usage "% full"
-              }
           }'
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 002 - CPU Usage
-            # ====================================================
-
             2)
-
               FILE="scripts/${NUMBER}_check_cpu_usage.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_cpu_usage.sh
-          # Description : Check CPU utilization
-          # ==========================================================
 
           set -euo pipefail
 
@@ -154,24 +82,12 @@ jobs:
 
           echo "CPU Usage: ${CPU_USAGE}%"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 003 - Memory Usage
-            # ====================================================
-
             3)
-
               FILE="scripts/${NUMBER}_check_memory_usage.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_memory_usage.sh
-          # Description : Check memory utilization
-          # ==========================================================
 
           set -euo pipefail
 
@@ -190,52 +106,27 @@ jobs:
               echo "OK: Memory usage is normal"
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 004 - Load Average
-            # ====================================================
-
             4)
-
               FILE="scripts/${NUMBER}_check_load_average.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_load_average.sh
-          # Description : Check system load average
-          # ==========================================================
 
           set -euo pipefail
 
-          echo "Load Average:"
+          echo "System Load:"
           uptime
 
           echo
-          echo "Detailed Load Average:"
           cat /proc/loadavg
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 005 - Uptime
-            # ====================================================
-
             5)
-
               FILE="scripts/${NUMBER}_check_uptime.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_uptime.sh
-          # Description : Display system uptime
-          # ==========================================================
 
           set -euo pipefail
 
@@ -243,79 +134,37 @@ jobs:
           uptime -p
 
           echo
-          echo "System Boot Time:"
+          echo "Boot Time:"
           uptime -s
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 006 - Top CPU Processes
-            # ====================================================
-
             6)
-
               FILE="scripts/${NUMBER}_top_cpu_processes.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : top_cpu_processes.sh
-          # Description : Find top CPU-consuming processes
-          # ==========================================================
-
           set -euo pipefail
-
-          echo "Top CPU-consuming processes:"
-          echo
 
           ps aux --sort=-%cpu | head -11
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 007 - Top Memory Processes
-            # ====================================================
-
             7)
-
               FILE="scripts/${NUMBER}_top_memory_processes.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : top_memory_processes.sh
-          # Description : Find top memory-consuming processes
-          # ==========================================================
 
           set -euo pipefail
 
-          echo "Top memory-consuming processes:"
-          echo
-
           ps aux --sort=-%mem | head -11
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 008 - Kill Process
-            # ====================================================
-
             8)
-
               FILE="scripts/${NUMBER}_kill_process.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : kill_process.sh
-          # Description : Safely terminate a process
-          # ==========================================================
 
           set -euo pipefail
 
@@ -331,30 +180,16 @@ jobs:
               exit 1
           fi
 
-          echo "Sending SIGTERM to process $PID..."
-
           kill "$PID"
 
-          echo "Termination signal sent successfully."
+          echo "Termination signal sent to process $PID."
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 009 - Service Status
-            # ====================================================
-
             9)
-
               FILE="scripts/${NUMBER}_check_service_status.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_service_status.sh
-          # Description : Check Linux systemd service status
-          # ==========================================================
 
           set -euo pipefail
 
@@ -364,27 +199,16 @@ jobs:
               echo "SUCCESS: $SERVICE is running."
           else
               echo "ERROR: $SERVICE is not running."
+              systemctl status "$SERVICE" --no-pager || true
               exit 1
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 010 - Auto Restart Tomcat
-            # ====================================================
-
             10)
-
               FILE="scripts/${NUMBER}_auto_restart_tomcat.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : auto_restart_tomcat.sh
-          # Description : Automatically restart Tomcat if it fails
-          # ==========================================================
 
           set -euo pipefail
 
@@ -395,167 +219,95 @@ jobs:
               echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
           }
 
-          log "Checking $SERVICE service..."
+          log "Checking $SERVICE service."
 
           if systemctl is-active --quiet "$SERVICE"; then
               log "$SERVICE is running."
               exit 0
           fi
 
-          log "WARNING: $SERVICE is down."
-          log "Attempting to restart $SERVICE..."
+          log "$SERVICE is down."
+          log "Attempting to restart $SERVICE."
 
           systemctl restart "$SERVICE"
 
           sleep 10
 
           if systemctl is-active --quiet "$SERVICE"; then
-              log "SUCCESS: $SERVICE restarted successfully."
+              log "$SERVICE restarted successfully."
               exit 0
           fi
 
           log "ERROR: Failed to restart $SERVICE."
 
-          systemctl status "$SERVICE" \
-              --no-pager \
-              >> "$LOG_FILE" 2>&1 || true
+          systemctl status "$SERVICE" --no-pager >> "$LOG_FILE" 2>&1 || true
 
           exit 1
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 011 - Failed Services
-            # ====================================================
-
             11)
-
               FILE="scripts/${NUMBER}_check_failed_services.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : check_failed_services.sh
-          # Description : List failed systemd services
-          # ==========================================================
-
           set -euo pipefail
-
-          echo "Checking failed systemd services..."
-          echo
 
           systemctl --failed --no-pager
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 012 - Open Ports
-            # ====================================================
-
             12)
-
               FILE="scripts/${NUMBER}_check_open_ports.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_open_ports.sh
-          # Description : Display listening network ports
-          # ==========================================================
 
           set -euo pipefail
 
-          echo "Listening TCP/UDP ports:"
-          echo
-
           ss -tuln
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 013 - Network Connectivity
-            # ====================================================
-
             13)
-
               FILE="scripts/${NUMBER}_check_network_connectivity.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_network_connectivity.sh
-          # Description : Test connectivity to a host
-          # ==========================================================
 
           set -euo pipefail
 
           HOST="${1:-google.com}"
 
-          echo "Testing connectivity to $HOST..."
-
           if ping -c 3 "$HOST" >/dev/null 2>&1; then
-              echo "SUCCESS: Network connectivity is working."
+              echo "SUCCESS: $HOST is reachable."
           else
-              echo "ERROR: Network connectivity failed."
+              echo "ERROR: $HOST is unreachable."
               exit 1
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 014 - DNS Resolution
-            # ====================================================
-
             14)
-
               FILE="scripts/${NUMBER}_check_dns_resolution.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_dns_resolution.sh
-          # Description : Check DNS resolution
-          # ==========================================================
 
           set -euo pipefail
 
           DOMAIN="${1:-google.com}"
 
-          echo "Resolving $DOMAIN..."
-
           if getent hosts "$DOMAIN"; then
-              echo "SUCCESS: DNS resolution is working."
+              echo "SUCCESS: DNS resolution works for $DOMAIN."
           else
-              echo "ERROR: DNS resolution failed."
+              echo "ERROR: DNS resolution failed for $DOMAIN."
               exit 1
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 015 - HTTP Endpoint
-            # ====================================================
-
             15)
-
               FILE="scripts/${NUMBER}_check_http_endpoint.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_http_endpoint.sh
-          # Description : Check HTTP endpoint health
-          # ==========================================================
 
           set -euo pipefail
 
@@ -566,8 +318,8 @@ jobs:
               -w "%{http_code}" \
               "$URL")
 
-          echo "URL         : $URL"
-          echo "HTTP Status : $HTTP_STATUS"
+          echo "URL: $URL"
+          echo "HTTP Status: $HTTP_STATUS"
 
           if [[ "$HTTP_STATUS" =~ ^[23][0-9][0-9]$ ]]; then
               echo "SUCCESS: Endpoint is healthy."
@@ -576,155 +328,80 @@ jobs:
               exit 1
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 016 - Large Files
-            # ====================================================
-
             16)
-
               FILE="scripts/${NUMBER}_find_large_files.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_large_files.sh
-          # Description : Find files larger than specified size
-          # ==========================================================
 
           set -euo pipefail
 
           DIRECTORY="${1:-.}"
           SIZE="${2:-100M}"
 
-          echo "Files larger than $SIZE:"
-          echo
-
           find "$DIRECTORY" \
               -type f \
               -size +"$SIZE" \
               -exec ls -lh {} \;
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 017 - Recent Files
-            # ====================================================
-
             17)
-
               FILE="scripts/${NUMBER}_find_recent_files.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_recent_files.sh
-          # Description : Find files modified within 24 hours
-          # ==========================================================
 
           set -euo pipefail
 
           DIRECTORY="${1:-.}"
-
-          echo "Files modified within the last 24 hours:"
-          echo
 
           find "$DIRECTORY" \
               -type f \
               -mtime -1 \
               -print
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 018 - Old Files
-            # ====================================================
-
             18)
-
               FILE="scripts/${NUMBER}_find_old_files.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_old_files.sh
-          # Description : Find files older than specified days
-          # ==========================================================
 
           set -euo pipefail
 
           DIRECTORY="${1:-.}"
           DAYS="${2:-30}"
 
-          echo "Files older than $DAYS days:"
-          echo
-
           find "$DIRECTORY" \
               -type f \
               -mtime +"$DAYS" \
               -print
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 019 - Cleanup Old Logs
-            # ====================================================
-
             19)
-
               FILE="scripts/${NUMBER}_cleanup_old_logs.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : cleanup_old_logs.sh
-          # Description : Find old log files for cleanup
-          # ==========================================================
 
           set -euo pipefail
 
           LOG_DIR="${1:-/var/log}"
           DAYS="${2:-30}"
 
-          echo "Log files older than $DAYS days:"
-          echo
-
           find "$LOG_DIR" \
               -type f \
               -name "*.log" \
               -mtime +"$DAYS" \
               -print
-
-          echo
-          echo "Review files before enabling deletion."
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 020 - Archive Logs
-            # ====================================================
-
             20)
-
               FILE="scripts/${NUMBER}_archive_logs.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : archive_logs.sh
-          # Description : Compress a log directory
-          # ==========================================================
 
           set -euo pipefail
 
@@ -739,7 +416,6 @@ jobs:
           mkdir -p "$OUTPUT_DIR"
 
           TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-
           ARCHIVE="$OUTPUT_DIR/logs_$TIMESTAMP.tar.gz"
 
           tar -czf "$ARCHIVE" "$LOG_DIR"
@@ -747,24 +423,12 @@ jobs:
           echo "Archive created:"
           echo "$ARCHIVE"
           SCRIPT
-
               ;;
-
-            # ====================================================
-            # 021 - Search Error Logs
-            # ====================================================
 
             21)
-
               FILE="scripts/${NUMBER}_search_error_logs.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : search_error_logs.sh
-          # Description : Search logs for ERROR/WARN/FAILED
-          # ==========================================================
 
           set -euo pipefail
 
@@ -775,28 +439,14 @@ jobs:
               exit 1
           fi
 
-          grep -Ei \
-              "error|warn|failed|critical" \
-              "$LOG_FILE" || true
+          grep -Ei "error|warn|failed|critical" "$LOG_FILE" || true
           SCRIPT
-
               ;;
-
-            # ====================================================
-            # 022 - Monitor Log
-            # ====================================================
 
             22)
-
               FILE="scripts/${NUMBER}_monitor_log_file.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : monitor_log_file.sh
-          # Description : Monitor log file for errors
-          # ==========================================================
 
           set -euo pipefail
 
@@ -807,31 +457,14 @@ jobs:
               exit 1
           fi
 
-          echo "Monitoring $LOG_FILE..."
-          echo "Press Ctrl+C to stop."
-
-          tail -F "$LOG_FILE" |
-              grep --line-buffered \
-              -Ei "error|failed|critical"
+          tail -F "$LOG_FILE" | grep --line-buffered -Ei "error|failed|critical"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 023 - HTTP Status Analysis
-            # ====================================================
-
             23)
-
               FILE="scripts/${NUMBER}_analyze_http_status_codes.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : analyze_http_status_codes.sh
-          # Description : Count HTTP status codes from access log
-          # ==========================================================
 
           set -euo pipefail
 
@@ -842,136 +475,64 @@ jobs:
               exit 1
           fi
 
-          echo "HTTP status code summary:"
-          echo
-
           awk '{
-              for (i=1; i<=NF; i++) {
-                  if ($i ~ /^[1-5][0-9][0-9]$/) {
+              for (i=1; i<=NF; i++)
+                  if ($i ~ /^[1-5][0-9][0-9]$/)
                       print $i
-                  }
-              }
           }' "$LOG_FILE" |
-              sort |
-              uniq -c |
-              sort -nr
+          sort |
+          uniq -c |
+          sort -nr
           SCRIPT
-
               ;;
-
-            # ====================================================
-            # 024 - Failed SSH Logins
-            # ====================================================
 
             24)
-
               FILE="scripts/${NUMBER}_check_failed_ssh_logins.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : check_failed_ssh_logins.sh
-          # Description : Find failed SSH login attempts
-          # ==========================================================
-
           set -euo pipefail
-
-          echo "Failed SSH login attempts:"
-          echo
 
           if [ -f /var/log/auth.log ]; then
-
-              grep "Failed password" \
-                  /var/log/auth.log || true
-
+              grep "Failed password" /var/log/auth.log || true
           elif [ -f /var/log/secure ]; then
-
-              grep "Failed password" \
-                  /var/log/secure || true
-
+              grep "Failed password" /var/log/secure || true
           else
-
               echo "Authentication log not found."
-
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 025 - Inode Usage
-            # ====================================================
-
             25)
-
               FILE="scripts/${NUMBER}_check_inode_usage.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : check_inode_usage.sh
-          # Description : Check inode utilization
-          # ==========================================================
-
           set -euo pipefail
-
-          echo "Filesystem inode usage:"
-          echo
 
           df -ih
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 026 - Large Directories
-            # ====================================================
-
             26)
-
               FILE="scripts/${NUMBER}_find_large_directories.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_large_directories.sh
-          # Description : Find directories consuming most space
-          # ==========================================================
 
           set -euo pipefail
 
           DIRECTORY="${1:-.}"
 
-          echo "Largest directories:"
-          echo
-
-          du -h \
-              --max-depth=1 \
-              "$DIRECTORY" 2>/dev/null |
-              sort -hr |
-              head -20
+          du -h --max-depth=1 "$DIRECTORY" 2>/dev/null |
+          sort -hr |
+          head -20
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 027 - File Permissions
-            # ====================================================
-
             27)
-
               FILE="scripts/${NUMBER}_check_file_permissions.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_file_permissions.sh
-          # Description : Display permissions and ownership
-          # ==========================================================
 
           set -euo pipefail
 
@@ -982,98 +543,46 @@ jobs:
               exit 1
           fi
 
-          echo "Permissions:"
           ls -l "$FILE"
-
-          echo
-          echo "Detailed information:"
           stat "$FILE"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 028 - World Writable Files
-            # ====================================================
-
             28)
-
               FILE="scripts/${NUMBER}_find_world_writable_files.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_world_writable_files.sh
-          # Description : Find world-writable files
-          # ==========================================================
 
           set -euo pipefail
 
           DIRECTORY="${1:-.}"
-
-          echo "World-writable files:"
-          echo
 
           find "$DIRECTORY" \
               -type f \
               -perm -0002 \
               -print
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 029 - Orphaned Files
-            # ====================================================
-
             29)
-
               FILE="scripts/${NUMBER}_find_orphaned_files.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_orphaned_files.sh
-          # Description : Find files with missing owners/groups
-          # ==========================================================
 
           set -euo pipefail
 
           DIRECTORY="${1:-/}"
 
-          echo "Files with missing user ownership:"
-          find "$DIRECTORY" \
-              -xdev \
-              -nouser \
-              -print 2>/dev/null || true
+          find "$DIRECTORY" -xdev -nouser -print 2>/dev/null || true
 
-          echo
-          echo "Files with missing group ownership:"
-          find "$DIRECTORY" \
-              -xdev \
-              -nogroup \
-              -print 2>/dev/null || true
+          find "$DIRECTORY" -xdev -nogroup -print 2>/dev/null || true
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 030 - Create Backup
-            # ====================================================
-
             30)
-
               FILE="scripts/${NUMBER}_create_backup.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : create_backup.sh
-          # Description : Create timestamped compressed backup
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1081,39 +590,25 @@ jobs:
           BACKUP_DIR="${2:-$HOME/backups}"
 
           if [ ! -d "$SOURCE" ]; then
-              echo "Source directory does not exist: $SOURCE"
+              echo "Source directory does not exist."
               exit 1
           fi
 
           mkdir -p "$BACKUP_DIR"
 
           TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-
           BACKUP="$BACKUP_DIR/backup_$TIMESTAMP.tar.gz"
 
           tar -czf "$BACKUP" "$SOURCE"
 
-          echo "Backup created:"
-          echo "$BACKUP"
+          echo "Backup created: $BACKUP"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 031 - Restore Backup
-            # ====================================================
-
             31)
-
               FILE="scripts/${NUMBER}_restore_backup.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : restore_backup.sh
-          # Description : Restore a compressed backup
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1126,35 +621,22 @@ jobs:
           fi
 
           if [ ! -f "$BACKUP" ]; then
-              echo "Backup not found: $BACKUP"
+              echo "Backup not found."
               exit 1
           fi
 
           mkdir -p "$DESTINATION"
 
-          tar -xzf "$BACKUP" \
-              -C "$DESTINATION"
+          tar -xzf "$BACKUP" -C "$DESTINATION"
 
           echo "Backup restored successfully."
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 032 - Backup User Home
-            # ====================================================
-
             32)
-
               FILE="scripts/${NUMBER}_backup_user_home.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : backup_user_home.sh
-          # Description : Backup a user's home directory
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1171,97 +653,53 @@ jobs:
           mkdir -p "$BACKUP_DIR"
 
           TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-
           BACKUP="$BACKUP_DIR/${USER_NAME}_$TIMESTAMP.tar.gz"
 
           tar -czf "$BACKUP" "$USER_HOME"
 
-          echo "User backup created:"
-          echo "$BACKUP"
+          echo "Backup created: $BACKUP"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 033 - Logged In Users
-            # ====================================================
-
             33)
-
               FILE="scripts/${NUMBER}_check_logged_in_users.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : check_logged_in_users.sh
-          # Description : Display currently logged-in users
-          # ==========================================================
-
           set -euo pipefail
-
-          echo "Currently logged-in users:"
-          echo
 
           who
 
           echo
-          echo "Logged-in user count:"
+          echo "User count:"
           who | wc -l
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 034 - User Expiry
-            # ====================================================
-
             34)
-
               FILE="scripts/${NUMBER}_check_user_expiry.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_user_expiry.sh
-          # Description : Check Linux user account expiration
-          # ==========================================================
 
           set -euo pipefail
 
           USER_NAME="${1:-$USER}"
 
-          echo "Account information:"
-          echo
-
           chage -l "$USER_NAME"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 035 - Create Users
-            # ====================================================
-
             35)
-
               FILE="scripts/${NUMBER}_create_users_from_file.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : create_users_from_file.sh
-          # Description : Create Linux users from a text file
-          # ==========================================================
 
           set -euo pipefail
 
           USER_FILE="${1:-users.txt}"
 
           if [ ! -f "$USER_FILE" ]; then
-              echo "User file not found: $USER_FILE"
+              echo "User file not found."
               exit 1
           fi
 
@@ -1270,45 +708,23 @@ jobs:
               [ -z "$USER_NAME" ] && continue
 
               if id "$USER_NAME" >/dev/null 2>&1; then
-
                   echo "User already exists: $USER_NAME"
-
               else
-
                   sudo useradd -m "$USER_NAME"
-
                   echo "Created user: $USER_NAME"
-
               fi
 
           done < "$USER_FILE"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 036 - System Information
-            # ====================================================
-
             36)
-
               FILE="scripts/${NUMBER}_system_information.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : system_information.sh
-          # Description : Generate Linux system information
-          # ==========================================================
-
           set -euo pipefail
 
-          echo "======================================"
-          echo "        SYSTEM INFORMATION"
-          echo "======================================"
-
-          echo
           echo "Hostname:"
           hostname
 
@@ -1336,86 +752,41 @@ jobs:
           echo "Uptime:"
           uptime -p
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 037 - Installed Packages
-            # ====================================================
-
             37)
-
               FILE="scripts/${NUMBER}_check_installed_packages.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_installed_packages.sh
-          # Description : List installed Linux packages
-          # ==========================================================
 
           set -euo pipefail
 
           if command -v dpkg >/dev/null 2>&1; then
-
               dpkg --get-selections
-
           elif command -v rpm >/dev/null 2>&1; then
-
               rpm -qa
-
           else
-
               echo "Unsupported package manager."
               exit 1
-
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 038 - Environment Variables
-            # ====================================================
-
             38)
-
               FILE="scripts/${NUMBER}_check_environment_variables.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_environment_variables.sh
-          # Description : Display environment variables
-          # ==========================================================
 
           set -euo pipefail
 
-          echo "Environment variables:"
-          echo
-
           printenv | sort
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 039 - Validate Environment Variables
-            # ====================================================
-
             39)
-
               FILE="scripts/${NUMBER}_validate_environment_variables.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : validate_environment_variables.sh
-          # Description : Validate required environment variables
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1428,147 +799,75 @@ jobs:
           MISSING=0
 
           for VAR in "${REQUIRED_VARS[@]}"; do
-
               if [ -z "${!VAR:-}" ]; then
-
                   echo "ERROR: $VAR is not set."
-
                   MISSING=1
-
               else
-
                   echo "OK: $VAR is configured."
-
               fi
-
           done
 
-          if [ "$MISSING" -eq 1 ]; then
-              exit 1
-          fi
-
-          echo
-          echo "All required variables are configured."
+          [ "$MISSING" -eq 0 ]
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 040 - Git Status
-            # ====================================================
-
             40)
-
               FILE="scripts/${NUMBER}_git_status_check.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : git_status_check.sh
-          # Description : Check Git repository status
-          # ==========================================================
 
           set -euo pipefail
 
           if [ ! -d ".git" ]; then
-              echo "Current directory is not a Git repository."
+              echo "Not a Git repository."
               exit 1
           fi
 
-          echo "Git status:"
           git status --short
 
           echo
           echo "Current branch:"
           git branch --show-current
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 041 - Git Changes
-            # ====================================================
-
             41)
-
               FILE="scripts/${NUMBER}_find_git_changes.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : find_git_changes.sh
-          # Description : Detect uncommitted Git changes
-          # ==========================================================
 
           set -euo pipefail
 
           if [ -z "$(git status --porcelain)" ]; then
-
               echo "Working tree is clean."
-
           else
-
-              echo "Uncommitted changes found:"
+              echo "Uncommitted changes:"
               git status --short
-
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 042 - Git Backup
-            # ====================================================
-
             42)
-
               FILE="scripts/${NUMBER}_git_backup.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : git_backup.sh
-          # Description : Create a Git backup branch
-          # ==========================================================
 
           set -euo pipefail
 
           TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
-
           BRANCH="backup/$TIMESTAMP"
 
           git switch -c "$BRANCH"
 
-          git add .
-
-          git commit \
-              -m "Create Git backup $TIMESTAMP" || true
-
-          echo
           echo "Backup branch created:"
           echo "$BRANCH"
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 043 - Docker Container Health
-            # ====================================================
-
             43)
-
               FILE="scripts/${NUMBER}_docker_container_health.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : docker_container_health.sh
-          # Description : Check Docker container health
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1577,91 +876,46 @@ jobs:
               exit 1
           fi
 
-          echo "Docker containers:"
-          echo
-
-          docker ps \
-              --format \
-              "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
           SCRIPT
-
               ;;
-
-            # ====================================================
-            # 044 - Docker Container Cleanup
-            # ====================================================
 
             44)
-
               FILE="scripts/${NUMBER}_cleanup_docker_containers.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
 
-          # ==========================================================
-          # Script Name : cleanup_docker_containers.sh
-          # Description : Remove stopped Docker containers
-          # ==========================================================
-
           set -euo pipefail
 
-          echo "Stopped containers:"
-          docker ps -aq --filter status=exited
-
-          echo
-          echo "Removing stopped containers..."
+          if ! command -v docker >/dev/null 2>&1; then
+              echo "Docker is not installed."
+              exit 1
+          fi
 
           docker container prune -f
-
-          echo
-          echo "Cleanup completed."
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 045 - Docker Image Cleanup
-            # ====================================================
-
             45)
-
               FILE="scripts/${NUMBER}_cleanup_docker_images.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : cleanup_docker_images.sh
-          # Description : Remove unused Docker images
-          # ==========================================================
 
           set -euo pipefail
 
-          echo "Cleaning unused Docker images..."
+          if ! command -v docker >/dev/null 2>&1; then
+              echo "Docker is not installed."
+              exit 1
+          fi
 
           docker image prune -f
-
-          echo
-          echo "Docker image cleanup completed."
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 046 - Kubernetes Pod Health
-            # ====================================================
-
             46)
-
               FILE="scripts/${NUMBER}_kubernetes_pod_health.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : kubernetes_pod_health.sh
-          # Description : Check Kubernetes pod health
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1672,36 +926,22 @@ jobs:
               exit 1
           fi
 
-          echo "Pods in namespace: $NAMESPACE"
-          echo
-
           kubectl get pods -n "$NAMESPACE"
 
           echo
-          echo "Pods not running:"
+          echo "Non-running pods:"
+
           kubectl get pods \
               -n "$NAMESPACE" \
               --field-selector=status.phase!=Running \
               --no-headers || true
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 047 - Kubernetes Node Health
-            # ====================================================
-
             47)
-
               FILE="scripts/${NUMBER}_kubernetes_node_health.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : kubernetes_node_health.sh
-          # Description : Check Kubernetes node health
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1710,33 +950,14 @@ jobs:
               exit 1
           fi
 
-          echo "Kubernetes nodes:"
-          echo
-
-          kubectl get nodes
-
-          echo
-          echo "Detailed node information:"
           kubectl get nodes -o wide
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 048 - Kubernetes Deployment Recovery
-            # ====================================================
-
             48)
-
               FILE="scripts/${NUMBER}_restart_unhealthy_kubernetes_deployment.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : restart_unhealthy_kubernetes_deployment.sh
-          # Description : Restart deployment when replicas are unhealthy
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1759,44 +980,23 @@ jobs:
           READY="${READY:-0}"
           DESIRED="${DESIRED:-0}"
 
-          echo "Ready replicas  : $READY"
+          echo "Ready replicas: $READY"
           echo "Desired replicas: $DESIRED"
 
           if [ "$READY" -lt "$DESIRED" ]; then
-
               echo "Deployment is unhealthy."
-              echo "Restarting deployment..."
-
-              kubectl rollout restart deployment "$DEPLOYMENT" \
-                  -n "$NAMESPACE"
-
-              kubectl rollout status deployment "$DEPLOYMENT" \
-                  -n "$NAMESPACE"
-
+              kubectl rollout restart deployment "$DEPLOYMENT" -n "$NAMESPACE"
+              kubectl rollout status deployment "$DEPLOYMENT" -n "$NAMESPACE"
           else
-
               echo "Deployment is healthy."
-
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 049 - AWS EC2 Status
-            # ====================================================
-
             49)
-
               FILE="scripts/${NUMBER}_check_ec2_status.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_ec2_status.sh
-          # Description : Check AWS EC2 instance status
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1812,33 +1012,17 @@ jobs:
               exit 1
           fi
 
-          echo "EC2 instances in $REGION:"
-          echo
-
           aws ec2 describe-instances \
               --region "$REGION" \
-              --query \
-              'Reservations[].Instances[].[InstanceId,State.Name,PrivateIpAddress]' \
+              --query 'Reservations[].Instances[].[InstanceId,State.Name,PrivateIpAddress]' \
               --output table
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 050 - AWS S3 Bucket
-            # ====================================================
-
             50)
-
               FILE="scripts/${NUMBER}_check_s3_bucket.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_s3_bucket.sh
-          # Description : Check S3 bucket accessibility
-          # ==========================================================
 
           set -euo pipefail
 
@@ -1854,215 +1038,146 @@ jobs:
               exit 1
           fi
 
-          echo "Checking S3 bucket: $BUCKET"
-
           if aws s3 ls "s3://$BUCKET" >/dev/null 2>&1; then
-
               echo "SUCCESS: Bucket is accessible."
-
           else
-
               echo "ERROR: Bucket is not accessible."
               exit 1
-
           fi
           SCRIPT
-
               ;;
 
-            # ====================================================
-            # 051 - Generic Process Self-Healing
-            # ====================================================
-
             51)
-
               FILE="scripts/${NUMBER}_check_process_and_restart.sh"
-
               cat > "$FILE" <<'SCRIPT'
           #!/bin/bash
-
-          # ==========================================================
-          # Script Name : check_process_and_restart.sh
-          # Description : Monitor a process and restart it if required
-          # ==========================================================
 
           set -euo pipefail
 
           PROCESS_NAME="${1:-nginx}"
-
-          RESTART_COMMAND="${2:-systemctl restart nginx}"
-
-          LOG_FILE="${3:-/tmp/process-auto-restart.log}"
-
-          log() {
-              echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" |
-                  tee -a "$LOG_FILE"
-          }
-
-          log "Checking process: $PROCESS_NAME"
+          SERVICE_NAME="${2:-nginx}"
 
           if pgrep -x "$PROCESS_NAME" >/dev/null 2>&1; then
-
-              log "$PROCESS_NAME is running."
-              exit 0
-
-          fi
-
-          log "WARNING: $PROCESS_NAME is not running."
-
-          log "Attempting automatic restart..."
-
-          eval "$RESTART_COMMAND"
-
-          sleep 5
-
-          if pgrep -x "$PROCESS_NAME" >/dev/null 2>&1; then
-
-              log "SUCCESS: $PROCESS_NAME restarted successfully."
-
+              echo "$PROCESS_NAME is running."
           else
+              echo "$PROCESS_NAME is not running."
+              echo "Attempting to restart $SERVICE_NAME..."
 
-              log "ERROR: Failed to restart $PROCESS_NAME."
-              exit 1
+              sudo systemctl restart "$SERVICE_NAME"
 
+              sleep 5
+
+              if pgrep -x "$PROCESS_NAME" >/dev/null 2>&1; then
+                  echo "$PROCESS_NAME restarted successfully."
+              else
+                  echo "ERROR: Failed to restart $PROCESS_NAME."
+                  exit 1
+              fi
           fi
           SCRIPT
-
               ;;
 
             *)
-
-              echo "Invalid use case number."
+              echo "Invalid use case."
               exit 1
-
               ;;
 
           esac
 
-          # ==========================================================
-          # Make script executable
-          # ==========================================================
-
           chmod +x "$FILE"
 
-          echo
-          echo "=========================================="
-          echo "Generated script:"
-          echo "$FILE"
-          echo "=========================================="
-
-      # ==========================================================
-      # 4. Validate generated Shell Script
-      # ==========================================================
+          echo "Generated: $FILE"
 
       - name: Validate shell script
         shell: bash
         run: |
-
           set -euo pipefail
 
           SCRIPT=$(find scripts \
-              -maxdepth 1 \
-              -type f \
-              -name '[0-9][0-9][0-9]_*.sh' |
-              sort |
-              tail -1)
+            -maxdepth 1 \
+            -type f \
+            -name '[0-9][0-9][0-9]_*.sh' |
+            sort |
+            tail -1)
 
-          echo "Validating:"
-          echo "$SCRIPT"
+          echo "Validating $SCRIPT"
 
           bash -n "$SCRIPT"
 
-          echo
-          echo "Shell syntax validation successful."
-
-      # ==========================================================
-      # 5. Update README
-      # ==========================================================
+          echo "Syntax validation successful."
 
       - name: Update README
         shell: bash
         run: |
-
           set -euo pipefail
 
-          if [ ! -f README.md ]; then
+          COUNT=$(find scripts \
+            -maxdepth 1 \
+            -type f \
+            -name '[0-9][0-9][0-9]_*.sh' |
+            wc -l)
 
-            cat > README.md <<'EOF'
+          cat > README.md <<EOF
           # ShellScript
 
-          A collection of 51 practical Shell Scripting use cases for Linux, DevOps, AWS, Docker and Kubernetes.
+          A collection of practical Shell scripting examples for Linux, DevOps, AWS, Docker and Kubernetes.
 
-          ## Daily Shell Script Challenge
-
-          One real-world Shell Script is automatically added every day using GitHub Actions.
-
-          ## Categories
+          ## Topics
 
           - Linux Administration
-          - System Monitoring
-          - Troubleshooting
-          - Networking
-          - Security
-          - Log Management
+          - CPU and Memory Monitoring
+          - Disk Monitoring
+          - Process Management
+          - Service Monitoring
+          - Tomcat Auto-Restart
+          - Network Troubleshooting
+          - DNS and HTTP Checks
+          - Log Analysis
           - Backup and Recovery
-          - Git
+          - File and Permission Management
+          - User Management
+          - Git Automation
           - Docker
           - Kubernetes
           - AWS
           - Self-Healing Automation
 
-          ## Progress
+          ## Scripts
 
-          Scripts are generated sequentially from `001` to `051`.
+          Currently available: ${COUNT}/51
 
-          ## Automation
+          Each script demonstrates a practical Shell scripting or DevOps use case.
 
-          The GitHub Actions workflow runs every day at 1:00 AM IST.
+          ## Usage
 
+          \`\`\`bash
+          chmod +x scripts/001_check_disk_usage.sh
+          ./scripts/001_check_disk_usage.sh
+          \`\`\`
           EOF
 
-          fi
-
-          SCRIPT_COUNT=$(find scripts \
-              -maxdepth 1 \
-              -type f \
-              -name '[0-9][0-9][0-9]_*.sh' |
-              wc -l)
-
-          echo "" >> README.md
-
-          echo "Progress: ${SCRIPT_COUNT}/51 scripts completed." \
-              >> README.md
-
-          echo "Last automated update: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" \
-              >> README.md
-
-      # ==========================================================
-      # 6. Commit and Push
-      # ==========================================================
-
-      - name: Commit and push changes
+      - name: Commit and push
         shell: bash
         run: |
-
           set -euo pipefail
 
           git add scripts/ README.md
 
           if git diff --cached --quiet; then
-
-              echo "No changes to commit."
-              exit 0
-
+            echo "No changes to commit."
+            exit 0
           fi
 
           SCRIPT=$(git diff --cached \
-              --name-only |
-              grep '^scripts/.*\.sh$' |
-              head -1)
+            --name-only |
+            grep '^scripts/.*\.sh$' |
+            head -1)
 
-          git commit \
-              -m "Add daily shell script: ${SCRIPT}"
+          SCRIPT_NAME=$(basename "$SCRIPT" .sh)
+
+          MESSAGE="Add ${SCRIPT_NAME#*_} script"
+          MESSAGE="${MESSAGE//_/ }"
+
+          git commit -m "$MESSAGE"
 
           git push
