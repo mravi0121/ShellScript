@@ -165,7 +165,7 @@ jobs:
 
           PAGE_NAME="${FILENAME%.sh}.html"
 
-          SCRIPT_FILE="shell/$FILENAME"
+          SCRIPT_FILE="scripts/$FILENAME"
 
           echo "Creating:"
           echo "docs/$PAGE_NAME"
