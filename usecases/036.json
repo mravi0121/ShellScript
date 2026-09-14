@@ -1,0 +1,8 @@
+{
+  "id": 36,
+  "title": "Change File Permissions",
+  "description": "Apply a safe configurable permission mode to a file.",
+  "filename": "036_change_file_permissions.sh",
+  "category": "Linux Administration",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nFILE=\"${1:-}\"\nMODE=\"${2:-640}\"\n\nif [[ -z \"$FILE\" || ! -f \"$FILE\" ]]; then\n    echo \"Usage: $0 /path/to/file 640\" >&2\n    exit 1\nfi\n\nchmod \"$MODE\" \"$FILE\"\n\necho \"Updated permissions:\"\nstat -c '%n %A (%a)' \"$FILE\"\n"
+}

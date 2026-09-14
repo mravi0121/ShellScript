@@ -1,0 +1,8 @@
+{
+  "id": 39,
+  "title": "List Logged-in Users",
+  "description": "Display currently logged-in users and sessions.",
+  "filename": "039_list_logged_in_users.sh",
+  "category": "Linux Administration",
+  "script": "#!/bin/bash\nset -euo pipefail\n\necho \"Currently logged-in users:\"\nwho\n"
+}

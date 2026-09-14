@@ -1,0 +1,8 @@
+{
+  "id": 18,
+  "title": "Check SSH Service",
+  "description": "Verify that the SSH service is active.",
+  "filename": "018_check_ssh_service.sh",
+  "category": "Security",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nSERVICE=\"ssh\"\nsystemctl list-unit-files \"$SERVICE.service\" >/dev/null 2>&1 || SERVICE=\"sshd\"\n\nif systemctl is-active --quiet \"$SERVICE\"; then\n    echo \"OK: $SERVICE is active.\"\nelse\n    echo \"CRITICAL: $SERVICE is not active.\" >&2\n    exit 1\nfi\n"
+}

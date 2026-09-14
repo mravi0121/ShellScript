@@ -1,0 +1,8 @@
+{
+  "id": 38,
+  "title": "Check Group Exists",
+  "description": "Check whether a Linux group exists.",
+  "filename": "038_check_group_exists.sh",
+  "category": "Linux Administration",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nGROUP_NAME=\"${1:-}\"\n\nif [[ -z \"$GROUP_NAME\" ]]; then\n    echo \"Usage: $0 groupname\" >&2\n    exit 1\nfi\n\nif getent group \"$GROUP_NAME\" >/dev/null; then\n    getent group \"$GROUP_NAME\"\n    echo \"Group exists: $GROUP_NAME\"\nelse\n    echo \"Group does not exist: $GROUP_NAME\"\n    exit 1\nfi\n"
+}

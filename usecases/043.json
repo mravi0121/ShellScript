@@ -1,0 +1,8 @@
+{
+  "id": 43,
+  "title": "Check Environment Variable",
+  "description": "Verify that a required environment variable is configured.",
+  "filename": "043_check_environment_variable.sh",
+  "category": "Automation",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nVARIABLE=\"${1:-}\"\n\nif [[ -z \"$VARIABLE\" ]]; then\n    echo \"Usage: $0 VARIABLE_NAME\" >&2\n    exit 1\nfi\n\nif [[ -n \"${!VARIABLE:-}\" ]]; then\n    echo \"$VARIABLE is set.\"\nelse\n    echo \"ERROR: $VARIABLE is not set.\" >&2\n    exit 1\nfi\n"
+}

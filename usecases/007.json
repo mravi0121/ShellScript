@@ -1,0 +1,8 @@
+{
+  "id": 7,
+  "title": "Find Large Files",
+  "description": "Find files larger than a configurable size to help troubleshoot disk consumption.",
+  "filename": "007_find_large_files.sh",
+  "category": "Disk Management",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nDIRECTORY=\"${1:-.}\"\nSIZE=\"${SIZE:-100M}\"\n\necho \"Files larger than $SIZE under $DIRECTORY:\"\nfind \"$DIRECTORY\" -type f -size \"+$SIZE\" -printf '%s %p\\n' 2>/dev/null |\n    sort -nr |\n    numfmt --field=1 --to=iec --suffix=B\n"
+}

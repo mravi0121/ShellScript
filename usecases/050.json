@@ -1,0 +1,8 @@
+{
+  "id": 50,
+  "title": "Kubernetes Pod Health",
+  "description": "Check Kubernetes pods and report pods that are not Ready or Running.",
+  "filename": "050_kubernetes_pod_health.sh",
+  "category": "Kubernetes",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nNAMESPACE=\"${1:-default}\"\n\nif ! command -v kubectl >/dev/null 2>&1; then\n    echo \"ERROR: kubectl is not installed.\" >&2\n    exit 1\nfi\n\necho \"Pods in namespace: $NAMESPACE\"\nkubectl get pods -n \"$NAMESPACE\"\n\necho\necho \"Pods not in Running phase:\"\nBAD=$(kubectl get pods -n \"$NAMESPACE\" --no-headers |\n    awk '$3 != \"Running\" {print}')\n\nif [[ -n \"$BAD\" ]]; then\n    echo \"$BAD\"\n    exit 1\nfi\n\necho \"OK: All pods are Running.\"\n"
+}

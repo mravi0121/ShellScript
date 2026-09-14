@@ -1,0 +1,8 @@
+{
+  "id": 23,
+  "title": "Delete Old Temporary Files",
+  "description": "Remove temporary files older than a configurable retention period.",
+  "filename": "023_cleanup_temp_files.sh",
+  "category": "System Maintenance",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nTEMP_DIR=\"${1:-/tmp}\"\nDAYS=\"${DAYS:-7}\"\n\necho \"Files in $TEMP_DIR older than $DAYS days:\"\n\nfind \"$TEMP_DIR\" -type f -mtime \"+$DAYS\" -print\n\nif [[ \"${DRY_RUN:-true}\" == \"true\" ]]; then\n    echo \"DRY_RUN=true: no files were deleted.\"\n    exit 0\nfi\n\nfind \"$TEMP_DIR\" -type f -mtime \"+$DAYS\" -delete\n\necho \"Cleanup completed.\"\n"
+}

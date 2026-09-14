@@ -1,0 +1,8 @@
+{
+  "id": 8,
+  "title": "Find Recently Modified Files",
+  "description": "Find files modified within a configurable time window.",
+  "filename": "008_find_recent_files.sh",
+  "category": "File Management",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nDIRECTORY=\"${1:-.}\"\nMINUTES=\"${MINUTES:-60}\"\n\necho \"Files modified in the last ${MINUTES} minutes:\"\nfind \"$DIRECTORY\" -type f -mmin \"-$MINUTES\" -print\n"
+}

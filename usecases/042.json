@@ -1,0 +1,8 @@
+{
+  "id": 42,
+  "title": "Check Open Files",
+  "description": "Show the number of open file descriptors for a process.",
+  "filename": "042_check_open_files.sh",
+  "category": "Troubleshooting",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nPID=\"${1:-}\"\n\nif [[ -z \"$PID\" || ! \"$PID\" =~ ^[0-9]+$ ]]; then\n    echo \"Usage: $0 PID\" >&2\n    exit 1\nfi\n\nif ! kill -0 \"$PID\" 2>/dev/null; then\n    echo \"ERROR: Process $PID does not exist.\" >&2\n    exit 1\nfi\n\nCOUNT=$(find \"/proc/$PID/fd\" -mindepth 1 -maxdepth 1 -type l 2>/dev/null | wc -l)\n\necho \"Open file descriptors for PID $PID: $COUNT\"\n"
+}

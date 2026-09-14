@@ -1,0 +1,8 @@
+{
+  "id": 47,
+  "title": "Git Pull Automation",
+  "description": "Safely fetch and fast-forward a Git working tree when possible.",
+  "filename": "047_git_pull.sh",
+  "category": "Git Automation",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nif ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then\n    echo \"ERROR: Not inside a Git repository.\" >&2\n    exit 1\nfi\n\nif ! git diff --quiet || ! git diff --cached --quiet; then\n    echo \"ERROR: Working tree has local changes. Refusing to pull.\" >&2\n    git status --short\n    exit 1\nfi\n\ngit pull --ff-only\n\necho \"Repository updated successfully.\"\n"
+}

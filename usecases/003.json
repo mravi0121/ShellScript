@@ -1,0 +1,8 @@
+{
+  "id": 3,
+  "title": "Check Memory Usage",
+  "description": "Check RAM utilization and report when memory usage is high.",
+  "filename": "003_check_memory_usage.sh",
+  "category": "Linux Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nTHRESHOLD=\"${THRESHOLD:-80}\"\n\nMEMORY_USAGE=$(free | awk '/Mem:/ {\n    printf \"%.0f\", ($3/$2)*100\n}')\n\necho \"Memory Usage: ${MEMORY_USAGE}%\"\n\nif (( MEMORY_USAGE >= THRESHOLD )); then\n    echo \"WARNING: Memory usage is above ${THRESHOLD}%\"\n    exit 1\nfi\n\necho \"OK: Memory usage is normal.\"\n"
+}

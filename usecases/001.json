@@ -1,0 +1,8 @@
+{
+  "id": 1,
+  "title": "Check Disk Usage",
+  "description": "Monitor filesystem disk utilization and alert when usage exceeds a threshold.",
+  "filename": "001_check_disk_usage.sh",
+  "category": "Linux Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nTHRESHOLD=\"${THRESHOLD:-80}\"\n\ndf -hP | awk -v threshold=\"$THRESHOLD\" '\nNR > 1 {\n    usage=$5\n    gsub(\"%\", \"\", usage)\n    if (usage >= threshold)\n        printf \"WARNING: %s is %s%% full\\n\", $6, usage\n    else\n        printf \"OK: %s is %s%% full\\n\", $6, usage\n}'\n"
+}

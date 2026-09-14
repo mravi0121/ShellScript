@@ -1,0 +1,8 @@
+{
+  "id": 12,
+  "title": "Restart Failed Service",
+  "description": "Restart a systemd service when it is inactive and verify recovery.",
+  "filename": "012_restart_failed_service.sh",
+  "category": "Service Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nSERVICE=\"${1:-sshd}\"\n\nif systemctl is-active --quiet \"$SERVICE\"; then\n    echo \"$SERVICE is already running.\"\n    exit 0\nfi\n\necho \"$SERVICE is down. Restarting...\"\nsudo systemctl restart \"$SERVICE\"\nsleep 3\n\nif systemctl is-active --quiet \"$SERVICE\"; then\n    echo \"$SERVICE recovered successfully.\"\nelse\n    echo \"ERROR: $SERVICE failed to recover.\" >&2\n    exit 1\nfi\n"
+}

@@ -1,0 +1,8 @@
+{
+  "id": 35,
+  "title": "Check File Permissions",
+  "description": "Inspect permissions and ownership of a specified file.",
+  "filename": "035_check_file_permissions.sh",
+  "category": "Linux Administration",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nFILE=\"${1:-}\"\n\nif [[ -z \"$FILE\" || ! -e \"$FILE\" ]]; then\n    echo \"Usage: $0 /path/to/file\" >&2\n    exit 1\nfi\n\nstat -c 'Path: %n\nPermissions: %A (%a)\nOwner: %U\nGroup: %G' \"$FILE\"\n"
+}

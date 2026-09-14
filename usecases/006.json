@@ -1,0 +1,8 @@
+{
+  "id": 6,
+  "title": "Check Root Filesystem",
+  "description": "Check only the root filesystem disk usage and alert above a threshold.",
+  "filename": "006_check_root_disk.sh",
+  "category": "Disk Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nTHRESHOLD=\"${THRESHOLD:-80}\"\n\nUSAGE=$(df -P / | awk 'NR==2 {gsub(\"%\",\"\",$5); print $5}')\n\necho \"Root filesystem usage: ${USAGE}%\"\n\nif (( USAGE >= THRESHOLD )); then\n    echo \"WARNING: / is above ${THRESHOLD}%\"\n    exit 1\nfi\n\necho \"OK: / is below the threshold.\"\n"
+}

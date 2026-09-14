@@ -1,0 +1,8 @@
+{
+  "id": 32,
+  "title": "Kill Stuck Process",
+  "description": "Gracefully terminate a process and escalate only when necessary.",
+  "filename": "032_kill_stuck_process.sh",
+  "category": "Process Management",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nPID=\"${1:-}\"\n\nif [[ -z \"$PID\" || ! \"$PID\" =~ ^[0-9]+$ ]]; then\n    echo \"Usage: $0 PID\" >&2\n    exit 1\nfi\n\nif ! kill -0 \"$PID\" 2>/dev/null; then\n    echo \"Process $PID does not exist.\"\n    exit 0\nfi\n\nkill \"$PID\"\necho \"Sent SIGTERM to process $PID.\"\n\nfor _ in {1..10}; do\n    sleep 1\n    if ! kill -0 \"$PID\" 2>/dev/null; then\n        echo \"Process $PID exited gracefully.\"\n        exit 0\n    fi\ndone\n\nif [[ \"${FORCE:-false}\" == \"true\" ]]; then\n    kill -KILL \"$PID\"\n    echo \"Process $PID did not exit; sent SIGKILL.\"\nelse\n    echo \"Process $PID is still running. Set FORCE=true to escalate.\"\n    exit 1\nfi\n"
+}

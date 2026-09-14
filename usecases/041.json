@@ -1,0 +1,8 @@
+{
+  "id": 41,
+  "title": "Check Kernel Version",
+  "description": "Display the running Linux kernel version.",
+  "filename": "041_check_kernel_version.sh",
+  "category": "Linux Administration",
+  "script": "#!/bin/bash\nset -euo pipefail\n\necho \"Kernel: $(uname -r)\"\necho \"Architecture: $(uname -m)\"\necho \"Hostname: $(hostname)\"\n"
+}

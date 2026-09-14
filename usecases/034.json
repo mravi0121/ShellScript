@@ -1,0 +1,8 @@
+{
+  "id": 34,
+  "title": "Check Directory Exists",
+  "description": "Verify that a required directory exists and is accessible.",
+  "filename": "034_check_directory_exists.sh",
+  "category": "File Management",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nDIRECTORY=\"${1:-}\"\n\nif [[ -z \"$DIRECTORY\" ]]; then\n    echo \"Usage: $0 /path/to/directory\" >&2\n    exit 1\nfi\n\nif [[ -d \"$DIRECTORY\" && -x \"$DIRECTORY\" ]]; then\n    echo \"OK: Directory exists and is accessible: $DIRECTORY\"\nelse\n    echo \"ERROR: Directory is missing or inaccessible: $DIRECTORY\" >&2\n    exit 1\nfi\n"
+}

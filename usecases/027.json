@@ -1,0 +1,8 @@
+{
+  "id": 27,
+  "title": "Check Inode Usage",
+  "description": "Check filesystem inode utilization and warn when it is high.",
+  "filename": "027_check_inode_usage.sh",
+  "category": "Disk Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nTHRESHOLD=\"${THRESHOLD:-80}\"\n\ndf -iP | awk -v threshold=\"$THRESHOLD\" '\nNR > 1 {\n    usage=$5\n    gsub(\"%\",\"\",usage)\n    if (usage >= threshold)\n        printf \"WARNING: %s inode usage is %s%%\\n\", $6, usage\n    else\n        printf \"OK: %s inode usage is %s%%\\n\", $6, usage\n}'\n"
+}

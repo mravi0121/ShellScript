@@ -1,0 +1,8 @@
+{
+  "id": 22,
+  "title": "Archive Old Logs",
+  "description": "Compress log files older than a configurable number of days.",
+  "filename": "022_archive_old_logs.sh",
+  "category": "Log Management",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nLOG_DIR=\"${1:-/var/log}\"\nDAYS=\"${DAYS:-7}\"\nARCHIVE_DIR=\"${ARCHIVE_DIR:-$HOME/log-archives}\"\n\nmkdir -p \"$ARCHIVE_DIR\"\n\nmapfile -t FILES < <(find \"$LOG_DIR\" -type f -name '*.log' -mtime \"+$DAYS\" -print 2>/dev/null)\n\nif (( ${#FILES[@]} == 0 )); then\n    echo \"No log files older than $DAYS days found.\"\n    exit 0\nfi\n\nARCHIVE=\"$ARCHIVE_DIR/logs-$(date +%Y%m%d-%H%M%S).tar.gz\"\n\ntar -czf \"$ARCHIVE\" \"${FILES[@]}\"\n\necho \"Created archive: $ARCHIVE\"\n"
+}

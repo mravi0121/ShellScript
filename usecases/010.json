@@ -1,0 +1,8 @@
+{
+  "id": 10,
+  "title": "Auto Restart Tomcat If Failed",
+  "description": "Check Tomcat and automatically restart it when the service is inactive.",
+  "filename": "010_auto_restart_tomcat.sh",
+  "category": "Service Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nSERVICE=\"${SERVICE:-tomcat}\"\nMAX_RETRIES=\"${MAX_RETRIES:-3}\"\n\nif systemctl is-active --quiet \"$SERVICE\"; then\n    echo \"$SERVICE is running.\"\n    exit 0\nfi\n\necho \"WARNING: $SERVICE is not running. Attempting restart...\"\n\nfor ((i=1; i<=MAX_RETRIES; i++)); do\n    sudo systemctl restart \"$SERVICE\"\n    sleep 5\n\n    if systemctl is-active --quiet \"$SERVICE\"; then\n        echo \"$SERVICE restarted successfully.\"\n        exit 0\n    fi\n\n    echo \"Restart attempt $i failed.\"\ndone\n\necho \"ERROR: Unable to restore $SERVICE after $MAX_RETRIES attempts.\" >&2\nexit 1\n"
+}

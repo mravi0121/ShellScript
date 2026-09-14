@@ -1,0 +1,8 @@
+{
+  "id": 24,
+  "title": "Backup Directory",
+  "description": "Create a compressed timestamped backup of a directory.",
+  "filename": "024_backup_directory.sh",
+  "category": "Backup",
+  "script": "#!/bin/bash\nset -euo pipefail\n\nSOURCE=\"${1:-$HOME/data}\"\nBACKUP_DIR=\"${BACKUP_DIR:-$HOME/backups}\"\n\nif [[ ! -d \"$SOURCE\" ]]; then\n    echo \"ERROR: Source directory not found: $SOURCE\" >&2\n    exit 1\nfi\n\nmkdir -p \"$BACKUP_DIR\"\n\nNAME=$(basename \"$SOURCE\")\nARCHIVE=\"$BACKUP_DIR/${NAME}-$(date +%Y%m%d-%H%M%S).tar.gz\"\n\ntar -czf \"$ARCHIVE\" -C \"$(dirname \"$SOURCE\")\" \"$NAME\"\n\necho \"Backup created: $ARCHIVE\"\n"
+}

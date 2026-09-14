@@ -1,0 +1,8 @@
+{
+  "id": 51,
+  "title": "Server Health Check",
+  "description": "Run a consolidated Linux health check covering CPU, memory, disk, load, uptime, and key services.",
+  "filename": "051_server_health_check.sh",
+  "category": "DevOps Monitoring",
+  "script": "#!/bin/bash\nset -euo pipefail\n\necho \"========================================\"\necho \"        SERVER HEALTH CHECK\"\necho \"========================================\"\n\necho\necho \"Hostname:\"\nhostname\n\necho\necho \"Uptime:\"\nuptime -p\n\necho\necho \"Load Average:\"\nawk '{print \"1m=\"$1, \"5m=\"$2, \"15m=\"$3}' /proc/loadavg\n\necho\necho \"CPU Usage:\"\ntop -bn1 | awk '/Cpu\\(s\\)/ {printf \"%.2f%%\\n\", 100 - $8}'\n\necho\necho \"Memory Usage:\"\nfree -h\n\necho\necho \"Root Disk:\"\ndf -h /\n\necho\necho \"Root Inodes:\"\ndf -ih /\n\necho\necho \"Failed Systemd Units:\"\nsystemctl --failed --no-legend || true\n\necho\necho \"Health check completed.\"\n"
+}
