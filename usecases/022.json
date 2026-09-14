@@ -1,8 +1,0 @@
-{
-  "id": 22,
-  "title": "Archive Old Logs",
-  "description": "Compress log files older than a configurable number of days.",
-  "filename": "022_archive_old_logs.sh",
-  "category": "Log Management",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Archive Old Logs\n# TODO: implement the production-ready script for this use case.\n\necho \"Archive Old Logs\""
-}

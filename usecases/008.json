@@ -1,8 +1,0 @@
-{
-  "id": 8,
-  "title": "Find Recently Modified Files",
-  "description": "Find files modified within a configurable time window.",
-  "filename": "008_find_recent_files.sh",
-  "category": "File Management",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Find Recently Modified Files\n# TODO: implement the production-ready script for this use case.\n\necho \"Find Recently Modified Files\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 17,
-  "title": "Check SSL Certificate Expiry",
-  "description": "Report the remaining validity period of an SSL certificate.",
-  "filename": "017_check_ssl_expiry.sh",
-  "category": "Security",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check SSL Certificate Expiry\n# TODO: implement the production-ready script for this use case.\n\necho \"Check SSL Certificate Expiry\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 40,
-  "title": "Check OS Version",
-  "description": "Display Linux distribution and OS version information.",
-  "filename": "040_check_os_version.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check OS Version\n# TODO: implement the production-ready script for this use case.\n\necho \"Check OS Version\""
-}

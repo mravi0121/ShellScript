@@ -1,8 +1,0 @@
-{
-  "id": 35,
-  "title": "Check File Permissions",
-  "description": "Inspect permissions and ownership of a specified file.",
-  "filename": "035_check_file_permissions.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check File Permissions\n# TODO: implement the production-ready script for this use case.\n\necho \"Check File Permissions\""
-}

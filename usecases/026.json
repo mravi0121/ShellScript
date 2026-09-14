@@ -1,8 +1,0 @@
-{
-  "id": 26,
-  "title": "Create Daily Backup",
-  "description": "Create a timestamped daily backup suitable for cron or CI automation.",
-  "filename": "026_daily_backup.sh",
-  "category": "Backup",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Create Daily Backup\n# TODO: implement the production-ready script for this use case.\n\necho \"Create Daily Backup\""
-}

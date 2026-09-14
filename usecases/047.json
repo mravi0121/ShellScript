@@ -1,8 +1,0 @@
-{
-  "id": 47,
-  "title": "Git Pull Automation",
-  "description": "Safely fetch and fast-forward a Git working tree when possible.",
-  "filename": "047_git_pull.sh",
-  "category": "Git Automation",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Git Pull Automation\n# TODO: implement the production-ready script for this use case.\n\necho \"Git Pull Automation\""
-}

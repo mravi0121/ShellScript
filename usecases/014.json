@@ -1,8 +1,0 @@
-{
-  "id": 14,
-  "title": "Check Remote Host Connectivity",
-  "description": "Test connectivity to a remote host using ping.",
-  "filename": "014_check_host_connectivity.sh",
-  "category": "Networking",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Remote Host Connectivity\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Remote Host Connectivity\""
-}

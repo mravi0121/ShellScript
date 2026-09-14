@@ -1,8 +1,0 @@
-{
-  "id": 42,
-  "title": "Check Open Files",
-  "description": "Show the number of open file descriptors for a process.",
-  "filename": "042_check_open_files.sh",
-  "category": "Troubleshooting",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Open Files\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Open Files\""
-}

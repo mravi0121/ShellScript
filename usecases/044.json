@@ -1,8 +1,0 @@
-{
-  "id": 44,
-  "title": "Validate JSON File",
-  "description": "Validate JSON syntax using an available command-line parser.",
-  "filename": "044_validate_json.sh",
-  "category": "Automation",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Validate JSON File\n# TODO: implement the production-ready script for this use case.\n\necho \"Validate JSON File\""
-}

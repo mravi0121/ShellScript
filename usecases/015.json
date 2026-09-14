@@ -1,8 +1,0 @@
-{
-  "id": 15,
-  "title": "Check HTTP Endpoint",
-  "description": "Check an HTTP/HTTPS endpoint and report its response status.",
-  "filename": "015_check_http_endpoint.sh",
-  "category": "Web Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check HTTP Endpoint\n# TODO: implement the production-ready script for this use case.\n\necho \"Check HTTP Endpoint\""
-}

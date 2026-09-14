@@ -1,8 +1,0 @@
-{
-  "id": 24,
-  "title": "Backup Directory",
-  "description": "Create a compressed timestamped backup of a directory.",
-  "filename": "024_backup_directory.sh",
-  "category": "Backup",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Backup Directory\n# TODO: implement the production-ready script for this use case.\n\necho \"Backup Directory\""
-}

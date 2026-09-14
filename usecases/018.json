@@ -1,8 +1,0 @@
-{
-  "id": 18,
-  "title": "Check SSH Service",
-  "description": "Verify that the SSH service is active.",
-  "filename": "018_check_ssh_service.sh",
-  "category": "Security",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check SSH Service\n# TODO: implement the production-ready script for this use case.\n\necho \"Check SSH Service\""
-}

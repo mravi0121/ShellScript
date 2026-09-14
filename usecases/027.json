@@ -1,8 +1,0 @@
-{
-  "id": 27,
-  "title": "Check Inode Usage",
-  "description": "Check filesystem inode utilization and warn when it is high.",
-  "filename": "027_check_inode_usage.sh",
-  "category": "Disk Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Inode Usage\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Inode Usage\""
-}

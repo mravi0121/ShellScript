@@ -1,8 +1,0 @@
-{
-  "id": 37,
-  "title": "Check User Exists",
-  "description": "Check whether a Linux user account exists.",
-  "filename": "037_check_user_exists.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check User Exists\n# TODO: implement the production-ready script for this use case.\n\necho \"Check User Exists\""
-}

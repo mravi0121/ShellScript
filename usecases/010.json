@@ -1,8 +1,0 @@
-{
-  "id": 10,
-  "title": "Auto Restart Tomcat If Failed",
-  "description": "Check Tomcat and automatically restart it when the service is inactive.",
-  "filename": "010_auto_restart_tomcat.sh",
-  "category": "Service Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Auto Restart Tomcat If Failed\n# TODO: implement the production-ready script for this use case.\n\necho \"Auto Restart Tomcat If Failed\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 25,
-  "title": "Verify Backup",
-  "description": "Verify that a backup archive exists and is readable.",
-  "filename": "025_verify_backup.sh",
-  "category": "Backup",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Verify Backup\n# TODO: implement the production-ready script for this use case.\n\necho \"Verify Backup\""
-}

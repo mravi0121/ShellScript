@@ -1,8 +1,0 @@
-{
-  "id": 41,
-  "title": "Check Kernel Version",
-  "description": "Display the running Linux kernel version.",
-  "filename": "041_check_kernel_version.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Kernel Version\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Kernel Version\""
-}

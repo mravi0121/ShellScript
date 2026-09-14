@@ -1,8 +1,0 @@
-{
-  "id": 30,
-  "title": "Find High Memory Processes",
-  "description": "Display processes consuming the most memory.",
-  "filename": "030_find_high_memory_processes.sh",
-  "category": "Process Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Find High Memory Processes\n# TODO: implement the production-ready script for this use case.\n\necho \"Find High Memory Processes\""
-}

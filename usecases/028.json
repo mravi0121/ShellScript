@@ -1,8 +1,0 @@
-{
-  "id": 28,
-  "title": "Check Zombie Processes",
-  "description": "Count zombie processes and report them for investigation.",
-  "filename": "028_check_zombie_processes.sh",
-  "category": "Process Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Zombie Processes\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Zombie Processes\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 5,
-  "title": "Check System Uptime",
-  "description": "Display system uptime and boot time.",
-  "filename": "005_check_uptime.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check System Uptime\n# TODO: implement the production-ready script for this use case.\n\necho \"Check System Uptime\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 20,
-  "title": "Monitor Log File",
-  "description": "Monitor a log file for a configurable error pattern.",
-  "filename": "020_monitor_log_file.sh",
-  "category": "Log Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Monitor Log File\n# TODO: implement the production-ready script for this use case.\n\necho \"Monitor Log File\""
-}

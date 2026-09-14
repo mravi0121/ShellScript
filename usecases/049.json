@@ -1,8 +1,0 @@
-{
-  "id": 49,
-  "title": "Docker Cleanup",
-  "description": "Identify and remove stopped Docker containers and unused resources with configurable safety.",
-  "filename": "049_docker_cleanup.sh",
-  "category": "Docker",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Docker Cleanup\n# TODO: implement the production-ready script for this use case.\n\necho \"Docker Cleanup\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 21,
-  "title": "Search Errors in Logs",
-  "description": "Search application logs for common error patterns.",
-  "filename": "021_search_log_errors.sh",
-  "category": "Log Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Search Errors in Logs\n# TODO: implement the production-ready script for this use case.\n\necho \"Search Errors in Logs\""
-}

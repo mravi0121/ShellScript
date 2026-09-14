@@ -1,8 +1,0 @@
-{
-  "id": 29,
-  "title": "Find High CPU Processes",
-  "description": "Display processes consuming the most CPU.",
-  "filename": "029_find_high_cpu_processes.sh",
-  "category": "Process Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Find High CPU Processes\n# TODO: implement the production-ready script for this use case.\n\necho \"Find High CPU Processes\""
-}

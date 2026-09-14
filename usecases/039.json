@@ -1,8 +1,0 @@
-{
-  "id": 39,
-  "title": "List Logged-in Users",
-  "description": "Display currently logged-in users and sessions.",
-  "filename": "039_list_logged_in_users.sh",
-  "category": "Linux Administration",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# List Logged-in Users\n# TODO: implement the production-ready script for this use case.\n\necho \"List Logged-in Users\""
-}

@@ -1,8 +1,0 @@
-{
-  "id": 12,
-  "title": "Restart Failed Service",
-  "description": "Restart a systemd service when it is inactive and verify recovery.",
-  "filename": "012_restart_failed_service.sh",
-  "category": "Service Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Restart Failed Service\n# TODO: implement the production-ready script for this use case.\n\necho \"Restart Failed Service\""
-}

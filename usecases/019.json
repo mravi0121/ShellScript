@@ -1,8 +1,0 @@
-{
-  "id": 19,
-  "title": "Check Failed SSH Logins",
-  "description": "Count recent failed SSH authentication attempts from system logs.",
-  "filename": "019_check_failed_ssh_logins.sh",
-  "category": "Security",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Failed SSH Logins\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Failed SSH Logins\""
-}

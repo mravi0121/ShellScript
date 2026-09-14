@@ -1,8 +1,0 @@
-{
-  "id": 6,
-  "title": "Check Root Filesystem",
-  "description": "Check only the root filesystem disk usage and alert above a threshold.",
-  "filename": "006_check_root_disk.sh",
-  "category": "Disk Monitoring",
-  "script": "#!/bin/bash\n\nset -euo pipefail\n\n# Check Root Filesystem\n# TODO: implement the production-ready script for this use case.\n\necho \"Check Root Filesystem\""
-}
