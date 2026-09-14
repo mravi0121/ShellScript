@@ -1,38 +1,36 @@
-# 🐚 ShellScript
+# ShellScript
 
-Practical Shell Scripting and DevOps Automation.
-
-## Progress
-
-**7/51 use cases completed**
+A collection of practical Shell scripting examples for Linux, DevOps, AWS, Docker and Kubernetes.
 
 ## Topics
 
-- Linux
-- Shell Scripting
-- Monitoring
-- Networking
-- Service Management
-- Log Management
-- Backup
-- Security
-- Git
+- Linux Administration
+- CPU and Memory Monitoring
+- Disk Monitoring
+- Process Management
+- Service Monitoring
+- Tomcat Auto-Restart
+- Network Troubleshooting
+- DNS and HTTP Checks
+- Log Analysis
+- Backup and Recovery
+- File and Permission Management
+- User Management
+- Git Automation
 - Docker
 - Kubernetes
 - AWS
-- DevOps Automation
+- Self-Healing Automation
 
-## GitHub Pages
+## Scripts
 
-https://mravi0121.github.io/ShellScript/
+Currently available: 8/51
 
-## Repository
+Each script demonstrates a practical Shell scripting or DevOps use case.
 
-https://github.com/mravi0121/ShellScript
+## Usage
 
-## Author
-
-Ravi Mishra
-
-GitHub: https://github.com/mravi0121
-
+```bash
+chmod +x scripts/001_check_disk_usage.sh
+./scripts/001_check_disk_usage.sh
+```
