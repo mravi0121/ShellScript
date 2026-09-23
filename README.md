@@ -24,7 +24,7 @@ A collection of practical Shell scripting examples for Linux, DevOps, AWS, Docke
 
 ## Scripts
 
-Currently available: 10/51
+Currently available: 11/51
 
 Each script demonstrates a practical Shell scripting or DevOps use case.
 
